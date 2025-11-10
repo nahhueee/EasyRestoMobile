@@ -1,0 +1,33 @@
+.item{
+    display: flex;
+    gap: 5px;
+}
+
+.btnNuevo{
+    margin-right: 10px;
+    margin-bottom: 10px;
+}
+
+.item-lista{
+    padding: 10px;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .datos{
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+
+        p{
+            margin: 0%;
+        }
+
+        .fecha{
+            font-size: 15px;
+            color: #d8d8d8;
+        }
+    }
+}
+

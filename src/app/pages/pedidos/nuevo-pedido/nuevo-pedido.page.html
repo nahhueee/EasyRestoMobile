@@ -1,0 +1,244 @@
+<ion-tabs>
+  <ion-tab tab="variedades">
+    <ion-header [translucent]="true">
+      <ion-toolbar>
+        <ion-buttons slot="start">
+          <ion-button (click)="Volver()">
+            <ion-icon slot="icon-only" name="arrow-back"></ion-icon>
+          </ion-button>
+        </ion-buttons>
+        <ion-title>{{titulo}}</ion-title>
+      </ion-toolbar>
+    </ion-header>
+
+
+    <ion-content [fullscreen]="true">
+      <div class="categorias-principales">
+        @for (categoria of primerasCategorias; track $index) {
+          <div class="categoria-item" (click)="categoriaSeleccionada = categoria; BuscarProductos()">
+            <p>{{categoria.icono}}</p>
+            <span>{{ categoria.nombre }}</span>
+          </div>
+        }
+        <div class="categoria-item ver-mas" (click)="AbrirModalCategorias()">
+          <ion-icon name="ellipsis-horizontal-circle"></ion-icon>
+          <span>Más</span>
+        </div>
+      </div>
+
+      <!-- Resultado Categoria -->
+      @if(categoriaSeleccionada){
+      <div class="aviso">
+        <span>Categoria Seleccionada</span>
+      </div>
+      <div class="recuadro">
+        <p>{{this.categoriaSeleccionada.icono}} {{this.categoriaSeleccionada.nombre}}</p>
+        <ion-icon slot="icon-only" name="close-outline" (click)="categoriaSeleccionada = undefined; BuscarProductos()"></ion-icon>
+      </div>
+      }
+
+      <!-- Input busqueda -->
+      <ion-item>
+        <ion-input label="Nombre Producto" type="text" [(ngModel)]="producto" (input)="BuscarProductos()"></ion-input>
+      </ion-item>
+
+
+      <!-- Lista de resultados -->
+      <div class="productos">
+        @for (producto of productos; track $index) {
+          <div class="producto-item" (click)="SeleccionarProducto(producto)">
+            <p>{{producto.nombre}}</p>
+            <span>${{producto.precios![0].precio | decimalFormat}}</span>
+          </div>
+        }
+      </div>
+
+      <!-- Modal Categorias -->
+      <ion-modal #modalCategorias id="modalCategorias">
+        <ng-template>
+          <ion-header>
+
+            <ion-toolbar>
+              <ion-buttons slot="start">
+                <ion-button (click)="CerrarModalCategorias()">
+                  <ion-icon slot="icon-only" name="arrow-back"></ion-icon>
+                </ion-button>
+              </ion-buttons>
+              <ion-title>Categorias</ion-title>
+            </ion-toolbar>
+
+          </ion-header>
+          <ion-content class="ion-padding">
+            
+            <div class="categorias">
+              @for (categoria of categorias; track $index) {
+                <div class="categoria-item" (click)="CerrarModalCategorias(categoria)">
+                  <p>{{categoria.icono}}</p>
+                  <span>{{ categoria.nombre }}</span>
+                </div>
+              }
+            </div>
+            
+          </ion-content>
+        </ng-template>
+      </ion-modal>
+
+      <!-- Boton Repetir Ultima Variedad -->
+      @if(ultimoAgregado.producto){
+        <ion-fab slot="fixed" vertical="bottom" horizontal="end" class="btnRepetir" (click)="RepetirUltimo()">
+          <ion-fab-button color="warning">
+            <ion-icon name="repeat-outline"></ion-icon>
+          </ion-fab-button>
+        </ion-fab>
+      }
+      
+    </ion-content>
+
+    <!-- Seleccionar Precio Variedad / Guarnicion -->
+    <ion-action-sheet></ion-action-sheet>
+
+  </ion-tab>
+  <ion-tab tab="confirmar">
+    <ion-header [translucent]="true">
+      <ion-toolbar>
+        <ion-buttons slot="start">
+          <ion-button (click)="Volver()">
+            <ion-icon slot="icon-only" name="arrow-back"></ion-icon>
+          </ion-button>
+        </ion-buttons>
+        <ion-title>Nuevo Pedido</ion-title>
+      </ion-toolbar>
+    </ion-header>
+
+    <ion-content [fullscreen]="true">
+
+      <!-- Selector tipo de pedido -->
+      <ion-segment [(ngModel)]="tipoSeleccionado" (ionChange)="SeleccionoTipo($event)">
+        <ion-segment-button 
+          *ngFor="let item of tiposPedido" 
+          [value]="item.id" 
+          [ngClass]="{'opcion-activa': item.id === tipoSeleccionado}">
+          <ion-icon [name]="item.icono"></ion-icon>
+          <ion-label>{{ item.nombre }}</ion-label>
+        </ion-segment-button>
+      </ion-segment>
+
+      <!-- Selector Mesa -->
+      @if(tipoSeleccionado === 1){
+        <ion-select interface="popover" justify="space-between" label="Mesa" [(ngModel)]="mesaSeleccionada">
+          @for(item of mesas; track item.id){
+            <ion-select-option [value]="item.id">{{item.codigo}}</ion-select-option>
+          }
+        </ion-select>
+      }@else {
+        <ion-item>
+          <ion-input label="Cliente" type="text" [(ngModel)]="cliente"></ion-input>
+        </ion-item>
+      }
+
+      <!-- Selector de Lista de Precio -->
+      <ion-select interface="popover" justify="space-between" label="Lista de Precio" [(ngModel)]="listaPrecioSeleccionada">
+        @for(item of listasPrecio; track item.id){
+          <ion-select-option [value]="item.id">{{item.nombre}}</ion-select-option>
+        }
+      </ion-select>
+
+      <!-- Lista de Detalle Pedido -->
+      <ion-list>
+        <div class="aviso">
+          <span>Lista de Variedades del Pedido</span>
+        </div>
+
+        <div class="totales">
+          <p><strong>Cant: </strong>{{cantItems}}</p>
+          <p><strong>Total: ${{totalItems | decimalFormat}}</strong></p>
+        </div>
+
+        @for (item of detallePedido; track item; let i = $index) {
+          <ion-item lines="none">
+            <div class="detalle-card">
+              <div class="datos">
+                <p class="producto"><strong>{{ item.producto }}</strong></p>
+                <p>Cant: {{ item.cantidad }} | Unit: ${{ item.unitario | number:'1.2-2' }}</p>
+                <p>Total: <strong>${{ item.total | number:'1.2-2' }}</strong></p>
+              </div>
+
+              @if(item.obs && item.obs.length > 0){
+                <div class="aviso">
+                  Observado
+                </div>
+              }
+             
+
+              <div class="botones">
+                <ion-button expand="block" color="warning" (click)="AbrirModalObs($index, 'producto')">
+                  <ion-icon name="chatbox-ellipses-outline" slot="start"></ion-icon>
+                  Observación
+                </ion-button>
+
+                <ion-button expand="block" color="danger" (click)="QuitarItem(i)">
+                  <ion-icon name="trash-outline" slot="start"></ion-icon>
+                  Quitar
+                </ion-button>
+              </div>
+            </div>
+          </ion-item>
+        }
+      </ion-list>
+
+      <!-- Modal Observaciones -->
+      <ion-modal #modalObs id="modalObs">
+        <ng-template>
+          <ion-header>
+
+            <ion-toolbar>
+              <ion-buttons slot="start">
+                <ion-button (click)="CerrarModalObs()">
+                  <ion-icon slot="icon-only" name="arrow-back"></ion-icon>
+                </ion-button>
+              </ion-buttons>
+              <ion-title>Categorias</ion-title>
+            </ion-toolbar>
+
+          </ion-header>
+          <ion-content class="ion-padding">
+            <p>Agrega una observación para este {{modalAbierto}}</p>
+            <ion-textarea label="Observación" [(ngModel)]="observacion"></ion-textarea>
+
+            <ion-button expand="block" color="primary" (click)="ConfimarObs()">
+              <ion-icon name="checkmark-outline"></ion-icon>
+              Confirmar
+            </ion-button>
+            
+          </ion-content>
+        </ng-template>
+      </ion-modal>
+
+    </ion-content>
+
+    <!-- Boton Guardar -->
+    <ion-footer class="footer-guardar">
+      <ion-toolbar>
+        <ion-button expand="block" color="success" (click)="GuardarPedido()">
+          <ion-icon name="save-outline" slot="start"></ion-icon>
+          Guardar Pedido
+        </ion-button>
+      </ion-toolbar>
+    </ion-footer>
+  </ion-tab>
+  
+  <ion-tab-bar slot="bottom">
+    <ion-tab-button tab="variedades">
+      <ion-icon name="restaurant-outline"></ion-icon>
+      Variedades
+    </ion-tab-button>
+    <ion-tab-button tab="confirmar">
+      <ion-icon name="list-outline"></ion-icon>
+      Confirmar
+    </ion-tab-button>
+  </ion-tab-bar>
+</ion-tabs>
+
+
+
+

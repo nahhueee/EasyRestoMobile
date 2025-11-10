@@ -1,0 +1,60 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-segment [value]="valorInicial">
+      <ion-segment-button value="pendientes">
+        <div class="item">
+            <ion-icon name="time-outline"></ion-icon>
+            <ion-label>PENDIENTES</ion-label>
+        </div>  
+      </ion-segment-button>
+      <ion-segment-button value="finalizados">
+        <div class="item">
+            <ion-icon name="checkmark-outline"></ion-icon>
+            <ion-label>FINALIZADOS</ion-label>
+        </div>        
+      </ion-segment-button>
+    </ion-segment>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+
+    <!-- Lista de Pedidos -->
+    <ion-list>
+        @for (item of pedidos; track item; let index = $index) {
+        <ion-item>
+            <div class="item-lista" (click)="ModificarPedido(item.id)">
+                <div class="datos">
+                    <p class="fecha">{{item.fecha | date:'dd/MM/yy'}} | {{item.hora}}</p>
+                    <p><strong>Mesa: </strong>{{item.mesa.codigo}}</p>
+                    <p><strong>Total: </strong>${{item.total | decimalFormat}}</p>
+                </div>
+               
+                <ion-button size="large" (click)="AbrirAcciones(item)">
+                    <ion-icon slot="icon-only" ios="print-outline" md="print-outline"></ion-icon>
+                </ion-button>
+            </div>
+            
+        </ion-item>
+        }
+    </ion-list>
+
+    <!-- Scroll Infinito -->
+    <ion-infinite-scroll threshold="100px" (ionInfinite)="CargarDatos($event)">
+    <ion-infinite-scroll-content
+        loadingSpinner="bubbles"
+        loadingText="Cargando más pedidos...">
+    </ion-infinite-scroll-content>
+    </ion-infinite-scroll>
+</ion-content>
+
+<!-- Boton Nuevo Pedido -->
+<ion-fab slot="fixed" vertical="bottom" horizontal="end" class="btnNuevo" (click)="NuevoPedido()">
+  <ion-fab-button color="success">
+    <ion-icon name="add"></ion-icon>
+  </ion-fab-button>
+</ion-fab>
+
+<!-- Acciones del boton imprimir -->
+<ion-action-sheet></ion-action-sheet>
+
