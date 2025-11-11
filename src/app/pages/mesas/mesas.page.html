@@ -1,6 +1,6 @@
 <ion-header>
   <ion-toolbar>
-    <ion-segment [value]="salonSeleccionado">
+    <ion-segment [(ngModel)]="salonSeleccionado">
         @for (salon of salones; track $index) {
             <ion-segment-button [value]="salon.id" (click)="ObtenerMesas(salon.id!)">
                 <ion-label>{{salon.descripcion}}</ion-label>

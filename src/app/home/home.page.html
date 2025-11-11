@@ -1,4 +1,11 @@
-<ion-tabs>
+<ion-menu side="start" menuId="main-menu" contentId="main-content">
+  <ion-content>
+    <!-- contenido del menú -->
+      Este es mi menu
+  </ion-content>
+</ion-menu>
+
+<ion-tabs id="main-content">
   <ion-tab tab="mesas">
     <app-mesas></app-mesas>
   </ion-tab>
@@ -7,12 +14,19 @@
   </ion-tab>
   
   <ion-tab-bar slot="bottom">
+    <ion-tab-button>
+      <ion-menu-toggle class="btnMenu">
+      <ion-icon name="menu-outline"></ion-icon>
+      </ion-menu-toggle>
+      opciones
+    </ion-tab-button>
+    
     <ion-tab-button tab="mesas">
       <ion-icon name="restaurant-outline"></ion-icon>
       Mesas
     </ion-tab-button>
     <ion-tab-button tab="pedidos">
-      <ion-icon name="list-outline"></ion-icon>
+      <ion-icon name="document-text-outline"></ion-icon>
       Pedidos
     </ion-tab-button>
   </ion-tab-bar>

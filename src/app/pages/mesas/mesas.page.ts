@@ -29,7 +29,7 @@ export class MesasPage implements OnInit {
 
   mesas: Mesa[] = [];
   salones: Salon[] = [];
-  salonSeleccionado:number = 1;
+  salonSeleccionado:number = 0;
 
   constructor(
     private router:Router,
@@ -39,7 +39,6 @@ export class MesasPage implements OnInit {
 
   ngOnInit() {
     this.ObtenerSalones();
-    this.ObtenerMesas(1);
 
     this.sub = this.recargaService.reload$.subscribe(tab => {
       if (tab === 'mesas') {
@@ -52,7 +51,9 @@ export class MesasPage implements OnInit {
     this.mesasService.ObtenerSalones()
       .subscribe(response => {
         this.salones = response;
-      });
+        this.salonSeleccionado = this.salones[0].id!;
+        this.ObtenerMesas(this.salonSeleccionado);
+    });
   }
 
   ObtenerMesas(idSalon:number){

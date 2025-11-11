@@ -1,6 +1,6 @@
 <ion-header>
   <ion-toolbar>
-    <ion-segment [value]="valorInicial">
+    <ion-segment [value]="valorInicial" (ionChange)="finalizados = !finalizados; ObtenerPedidos()">
       <ion-segment-button value="pendientes">
         <div class="item">
             <ion-icon name="time-outline"></ion-icon>
@@ -30,7 +30,7 @@
                     <p><strong>Total: </strong>${{item.total | decimalFormat}}</p>
                 </div>
                
-                <ion-button size="large" (click)="AbrirAcciones(item)">
+                <ion-button size="large" (click)="AbrirAcciones(item); $event.stopPropagation()">
                     <ion-icon slot="icon-only" ios="print-outline" md="print-outline"></ion-icon>
                 </ion-button>
             </div>

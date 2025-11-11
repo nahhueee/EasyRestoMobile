@@ -38,10 +38,7 @@
       }
 
       <!-- Input busqueda -->
-      <ion-item>
-        <ion-input label="Nombre Producto" type="text" [(ngModel)]="producto" (input)="BuscarProductos()"></ion-input>
-      </ion-item>
-
+      <ion-input label="Nombre del Producto" [clearInput]="true" label-placement="floating" fill="outline" [(ngModel)]="producto" (input)="BuscarProductos()" placeholder="Ingresa un nombre para buscar"></ion-input>
 
       <!-- Lista de resultados -->
       <div class="productos">
@@ -201,9 +198,11 @@
             </ion-toolbar>
 
           </ion-header>
-          <ion-content class="ion-padding">
+          <ion-content class="observacion">
             <p>Agrega una observación para este {{modalAbierto}}</p>
-            <ion-textarea label="Observación" [(ngModel)]="observacion"></ion-textarea>
+            <strong>{{productoSeleccionado}}</strong>
+
+            <ion-textarea label="Observación" label-placement="floating" fill="outline" [(ngModel)]="observacion"></ion-textarea>
 
             <ion-button expand="block" color="primary" (click)="ConfimarObs()">
               <ion-icon name="checkmark-outline"></ion-icon>
@@ -229,11 +228,11 @@
   
   <ion-tab-bar slot="bottom">
     <ion-tab-button tab="variedades">
-      <ion-icon name="restaurant-outline"></ion-icon>
+      <ion-icon name="fast-food-outline"></ion-icon>
       Variedades
     </ion-tab-button>
     <ion-tab-button tab="confirmar">
-      <ion-icon name="list-outline"></ion-icon>
+      <ion-icon name="checkbox-outline"></ion-icon>
       Confirmar
     </ion-tab-button>
   </ion-tab-bar>

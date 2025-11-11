@@ -4,10 +4,12 @@ import {
   IonTab,
   IonTabBar,
   IonTabButton,
-  IonTabs
+  IonTabs,
+  IonMenu, IonContent, IonMenuToggle
 } from '@ionic/angular/standalone';
 import { MesasPage } from '../pages/mesas/mesas.page';
 import { PedidosPage } from '../pages/pedidos/main-pedidos/pedidos.page';
+import { MenuController } from '@ionic/angular';
 
 @Component({
   selector: 'app-home',
@@ -20,9 +22,19 @@ import { PedidosPage } from '../pages/pedidos/main-pedidos/pedidos.page';
     IonTab,
     IonTabBar,
     IonTabs,
+    IonMenu,
+    IonContent,
+    IonMenuToggle,
     MesasPage,
     PedidosPage
   ],
 })
 export class HomePage {
+  
+  constructor(private menuCtrl: MenuController) {}
+
+  AbrirMenu() {
+    console.log("Menu")
+    this.menuCtrl.toggle('main-menu');
+  }
 }

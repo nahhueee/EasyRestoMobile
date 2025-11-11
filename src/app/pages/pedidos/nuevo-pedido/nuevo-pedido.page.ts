@@ -106,6 +106,7 @@ export class NuevoPedidoPage implements OnInit {
 
   modalAbierto:string = "";
   itemModalSeleccionado:number = 0;
+  productoSeleccionado:string = "";
   observacion:string = "";
 
   @ViewChild('modalObs', { static: false }) modalObs!: IonModal;
@@ -394,6 +395,7 @@ export class NuevoPedidoPage implements OnInit {
   AbrirModalObs(item:number, modal:string){
     this.modalAbierto = modal;
     this.itemModalSeleccionado = item;
+    this.productoSeleccionado = this.detallePedido[this.itemModalSeleccionado].producto!;
 
     if(this.modalAbierto == 'producto')
       this.observacion = this.detallePedido[item].obs ?? "";

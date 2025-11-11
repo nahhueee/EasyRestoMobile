@@ -8,7 +8,7 @@ import { ToastController } from '@ionic/angular';
 export class NotificacionesService {
   constructor(private toastController: ToastController) {}
 
-  async success(message:string, duration:number = 3000, position: 'top' | 'bottom' = 'bottom'){
+  async success(message:string, duration:number = 2000, position: 'top' | 'bottom' = 'top'){
     const toast = await this.toastController.create({
       message,
       duration: duration,
