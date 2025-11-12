@@ -5,11 +5,16 @@ import {
   IonTabBar,
   IonTabButton,
   IonTabs,
+  IonList,
+  IonItem,
+  IonLabel,
   IonMenu, IonContent, IonMenuToggle
 } from '@ionic/angular/standalone';
 import { MesasPage } from '../pages/mesas/mesas.page';
 import { PedidosPage } from '../pages/pedidos/main-pedidos/pedidos.page';
-import { MenuController } from '@ionic/angular';
+import { Router } from '@angular/router';
+import { UsuariosService } from '../services/usuarios.service';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-home',
@@ -25,16 +30,37 @@ import { MenuController } from '@ionic/angular';
     IonMenu,
     IonContent,
     IonMenuToggle,
+    IonList,
+    IonItem,
+    IonLabel,
     MesasPage,
     PedidosPage
   ],
 })
 export class HomePage {
-  
-  constructor(private menuCtrl: MenuController) {}
+  versionApp:string = "";
+  usuario:string = "";
+  cargo:string = "";
 
-  AbrirMenu() {
-    console.log("Menu")
-    this.menuCtrl.toggle('main-menu');
+  constructor(
+    private router: Router,
+    private usuarioService:UsuariosService
+  ) {
+    const sesion = this.usuarioService.GetSesion();
+    if (sesion) {
+      this.usuario = sesion.data.nombre;
+      this.cargo = sesion.data.cargo;
+    }
+
+    this.versionApp = environment.version;
   }
+
+  ConfigurarServidor() {
+    this.router.navigate(['/servidor']);
+  }
+
+  CerrarSesion() {
+    this.router.navigate(['/ingresar']);
+  }
+
 }

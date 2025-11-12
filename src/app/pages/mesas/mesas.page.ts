@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormControl, FormsModule } from '@angular/forms';
 import { ReactiveFormsModule } from '@angular/forms';
-import { IonContent,IonHeader, IonToolbar, IonSegment, IonSegmentButton, IonLabel } from '@ionic/angular/standalone';
+import { IonContent,IonHeader, IonToolbar, IonSegment, IonSegmentButton, IonLabel, IonRefresherContent, IonRefresher } from '@ionic/angular/standalone';
 import { MesasService } from 'src/app/services/mesas.service';
 import { Mesa } from 'src/app/models/Mesa';
 import { Salon } from 'src/app/models/Salon';
@@ -15,7 +15,7 @@ import { RecargaService } from 'src/app/services/recarga.service';
   templateUrl: './mesas.page.html',
   styleUrls: ['./mesas.page.scss'],
   standalone: true,
-  imports: [IonLabel, IonSegmentButton, IonSegment, 
+  imports: [IonRefresher, IonRefresherContent, IonLabel, IonSegmentButton, IonSegment, 
     CommonModule, 
     FormsModule,
     ReactiveFormsModule,
@@ -47,6 +47,14 @@ export class MesasPage implements OnInit {
     });
   }
 
+  handleRefresh(event: any) {
+    this.ObtenerMesas(this.salonSeleccionado); 
+    setTimeout(() => {
+      event.target.complete(); // detiene la animación de refresco
+    }, 1000);
+  }
+
+
   ObtenerSalones(){
     this.mesasService.ObtenerSalones()
       .subscribe(response => {
@@ -64,7 +72,11 @@ export class MesasPage implements OnInit {
   }
 
   NuevoPedido(mesa:Mesa){
-    this.router.navigate(['/nuevo-pedido', mesa.codigo]);
+    if(mesa.idPedido != 0){
+      this.router.navigate(['/actualizar-pedido', mesa.idPedido]);
+    }else{
+      this.router.navigate(['/nuevo-pedido', mesa.codigo]);
+    }
   }
 
   ngOnDestroy() {

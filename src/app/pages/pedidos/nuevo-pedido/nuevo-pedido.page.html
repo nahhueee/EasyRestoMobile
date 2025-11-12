@@ -103,7 +103,7 @@
             <ion-icon slot="icon-only" name="arrow-back"></ion-icon>
           </ion-button>
         </ion-buttons>
-        <ion-title>Nuevo Pedido</ion-title>
+        <ion-title>{{titulo}}</ion-title>
       </ion-toolbar>
     </ion-header>
 
@@ -139,6 +139,11 @@
           <ion-select-option [value]="item.id">{{item.nombre}}</ion-select-option>
         }
       </ion-select>
+
+      <ion-button class="btnObservar" expand="block" color="primary" (click)="AbrirModalObs(0, 'pedido')">
+        <ion-icon name="chatbox-ellipses-outline" slot="start"></ion-icon>
+        Observar Pedido
+      </ion-button>
 
       <!-- Lista de Detalle Pedido -->
       <ion-list>

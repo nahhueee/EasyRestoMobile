@@ -8,45 +8,45 @@ import { ToastController } from '@ionic/angular';
 export class NotificacionesService {
   constructor(private toastController: ToastController) {}
 
-  async success(message:string, duration:number = 2000, position: 'top' | 'bottom' = 'top'){
+  async success(message:string, duration:number = 2000){
     const toast = await this.toastController.create({
       message,
       duration: duration,
       color: 'success',
-      position: position,
+      position: 'top',
       icon: 'checkmark-circle-outline'
     });
     await toast.present();
   }
 
-  async info(message:string, duration:number = 3000){
+  async info(message:string, duration:number = 2000){
     const toast = await this.toastController.create({
       message,
       duration: duration,
       color: 'primary',
-      position: 'bottom',
+      position: 'top',
       icon: 'information-circle-outline'
     });
     await toast.present();
   }
 
-  async warn(message:string, duration:number = 3000){
+  async warn(message:string, duration:number = 2000){
     const toast = await this.toastController.create({
       message,
       duration: duration,
       color: 'warning',
-      position: 'bottom',
+      position: 'top',
       icon: 'alert-circle-outline'
     });
     await toast.present();
   }
 
-  async error(message:string, duration:number = 3000){
+  async error(message:string, duration:number = 2000){
     const toast = await this.toastController.create({
       message,
       duration: duration,
       color: 'danger',
-      position: 'bottom',
+      position: 'top',
       icon: 'close-circle-outline'
     });
     await toast.present();

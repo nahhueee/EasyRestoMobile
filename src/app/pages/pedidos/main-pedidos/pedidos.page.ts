@@ -16,7 +16,7 @@ import {
   IonList,
   IonItem, 
   IonInfiniteScroll,
-  IonInfiniteScrollContent, IonButton, IonActionSheet } from '@ionic/angular/standalone';
+  IonInfiniteScrollContent, IonButton, IonActionSheet, IonRefresher, IonRefresherContent } from '@ionic/angular/standalone';
 import { FiltroPedido } from 'src/app/models/Filtros/FiltroPedido';
 import { PedidosService } from 'src/app/services/pedidos.service';
 import { NotificacionesService } from 'src/app/services/notificaciones.service';
@@ -29,7 +29,7 @@ import { RecargaService } from 'src/app/services/recarga.service';
   templateUrl: './pedidos.page.html',
   styleUrls: ['./pedidos.page.scss'],
   standalone: true,
-  imports: [IonActionSheet, IonButton, 
+  imports: [IonRefresherContent, IonRefresher, IonActionSheet, IonButton, 
     IonSegmentButton, 
     IonLabel, 
     IonFab, 
@@ -74,6 +74,13 @@ export class PedidosPage implements OnInit {
     });
 
     this.ObtenerPedidos();
+  }
+
+  handleRefresh(event: any) {
+    this.ObtenerPedidos(); 
+    setTimeout(() => {
+      event.target.complete(); // detiene la animación de refresco
+    }, 1000);
   }
 
   ObtenerPedidos(event?: any){

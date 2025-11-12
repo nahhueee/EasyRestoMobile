@@ -1,0 +1,35 @@
+<ion-content [fullscreen]="true" class="fondo">
+  <div class="contenedor">
+    <!-- Recarga de la informacion -->
+    <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
+      <ion-refresher-content
+        pullingIcon="chevron-down-circle-outline"
+        pullingText="Desliza hacia abajo para actualizar"
+        refreshingSpinner="circles"
+        refreshingText="Actualizando..."
+      >
+      </ion-refresher-content>
+    </ion-refresher>
+    
+    <div class="recuadro">
+      <div class="logo">
+        <img src="assets/IconoWhite.png" alt="Logo" />
+      </div>
+
+      <h2>Selecciona un usuario para comenzar</h2>
+
+      <ion-item class="selector">
+        <ion-select label="Usuario" interface="popover" justify="space-between" [(ngModel)]="usuarioSeleccionado" placeholder="Elegir usuario">
+          <ion-select-option *ngFor="let u of usuarios" [value]="u">{{ u.nombre }}</ion-select-option>
+        </ion-select>
+      </ion-item>
+
+      <ion-button expand="block" shape="round" color="primary" (click)="Ingresar()">
+        Ingresar
+      </ion-button>
+    </div>
+    <div class="footer">
+      <p (click)="ConfigurarServidor()" class="link-servidor">Configurar Servidor</p>
+    </div>
+  </div>
+</ion-content>

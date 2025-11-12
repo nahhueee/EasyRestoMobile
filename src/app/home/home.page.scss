@@ -1,8 +1,14 @@
+.opciones-menu{
+  ion-icon{
+    color: var(--ion-color-primary);
+  }
+}
+
 .btnMenu{
   margin-top: -8px;
   margin-bottom: -8px;
   width: 100%;
   ion-icon{
-    font-size: 33px;
+    font-size: 37px;
   }
 }

@@ -33,4 +33,12 @@ export const routes: Routes = [
     path: 'actualizar-pedido/:idPedido',
     loadComponent: () => import('./pages/pedidos/nuevo-pedido/nuevo-pedido.page').then(m => m.NuevoPedidoPage)
   },
+  {
+    path: 'ingresar',
+    loadComponent: () => import('./pages/ingresar/ingresar.page').then( m => m.IngresarPage)
+  },
+  {
+    path: 'servidor',
+    loadComponent: () => import('./pages/servidor/servidor.page').then( m => m.ServidorPage)
+  },
 ];

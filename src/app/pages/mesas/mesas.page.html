@@ -11,6 +11,19 @@
 </ion-header>
 
 <ion-content [fullscreen]="true">
+
+  <!-- Recarga de la informacion -->
+  <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
+    <ion-refresher-content
+      pullingIcon="chevron-down-circle-outline"
+      pullingText="Desliza hacia abajo para actualizar"
+      refreshingSpinner="circles"
+      refreshingText="Actualizando..."
+    >
+    </ion-refresher-content>
+  </ion-refresher>
+
+  <!-- Lista de resultados -->
   <div class="grid">
     <div class="card" *ngFor="let mesa of mesas" [class.ocupada]="mesa.idPedido != 0" (click)="NuevoPedido(mesa)">
       <h3>{{ mesa.codigo }}</h3>

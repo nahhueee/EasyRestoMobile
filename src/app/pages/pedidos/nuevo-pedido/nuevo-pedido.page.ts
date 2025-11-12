@@ -281,7 +281,7 @@ export class NuevoPedidoPage implements OnInit {
     }
     
     this.RecontarTotales();
-    this.Notificaciones.success("Producto agregado", 1500, 'top');
+    this.Notificaciones.success("Producto agregado", 1500);
   }
 
   RepetirUltimo(){
@@ -296,7 +296,7 @@ export class NuevoPedidoPage implements OnInit {
     }
 
     this.RecontarTotales();
-    this.Notificaciones.success("Producto agregado", 1500, 'top');
+    this.Notificaciones.success("Producto agregado", 1500);
   }
   //#endregion
 
@@ -395,21 +395,27 @@ export class NuevoPedidoPage implements OnInit {
   AbrirModalObs(item:number, modal:string){
     this.modalAbierto = modal;
     this.itemModalSeleccionado = item;
-    this.productoSeleccionado = this.detallePedido[this.itemModalSeleccionado].producto!;
 
-    if(this.modalAbierto == 'producto')
+    if(this.modalAbierto == 'producto'){
+      this.productoSeleccionado = this.detallePedido[this.itemModalSeleccionado].producto!;
       this.observacion = this.detallePedido[item].obs ?? "";
-
+    }else if(this.modalAbierto == 'pedido'){
+      this.productoSeleccionado = "";
+      this.observacion = this.pedido.obs ?? "";
+    }
+    
     this.modalObs.present();
   }
 
   ConfimarObs(){
     if(this.modalAbierto == 'producto'){
       this.detallePedido[this.itemModalSeleccionado].obs = this.observacion;
-      this.observacion = "";
-      this.CerrarModalObs();
     }else{
+      this.pedido.obs = this.observacion
     }
+
+    this.observacion = "";
+    this.CerrarModalObs();
   }
 
   CerrarModalObs(){
@@ -417,6 +423,14 @@ export class NuevoPedidoPage implements OnInit {
   }
 
   GuardarPedido() {
+    if(this.pedidoParametro != 0){
+      if(this.pedido.finalizado){
+        this.Notificaciones.warn("No se puede modificar un pedido finalizado");
+        return;
+      }
+    }
+
+
     const fechaActual = new Date();
 
     // Obtener horas y minutos 

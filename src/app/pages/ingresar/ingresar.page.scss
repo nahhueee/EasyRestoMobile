@@ -1,0 +1,59 @@
+.fondo {
+  --background: url("/assets/Fondo.webp") no-repeat center center / cover;
+}
+
+.contenedor{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+}
+
+.recuadro {
+  background: rgba(46, 46, 46, 0.8);
+  padding: 30px;
+  border-radius: 20px;
+  width: 85%;
+  max-width: 400px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.logo img {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  margin-bottom: 20px;
+}
+
+h2 {
+  margin-bottom: 20px;
+  font-size: 18px;
+  color: #ffffff;
+}
+
+.selector {
+  margin-bottom: 20px;
+  border-radius: 10px;
+}
+
+.footer {
+  text-align: center;
+  padding-bottom: 15px;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+}
+
+.link-servidor {
+  color: #ffffffb3;
+  font-size: 14px;
+  text-decoration: underline;
+  cursor: pointer;
+}

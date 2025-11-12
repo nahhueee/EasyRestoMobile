@@ -7,7 +7,7 @@ import { environment } from 'src/environments/environment';
   providedIn: 'root'
 })
 export class MesasService {
-  apiUrl:string = environment.apiUrl;
+  apiUrl:string = localStorage.getItem('apiUrl')! ?? environment.apiUrl;
   constructor(private http: HttpClient) {}
 
   ObtenerMesas(idSalon: number): Observable<any> {
