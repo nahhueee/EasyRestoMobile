@@ -13,6 +13,7 @@ export class UsuariosService {
   constructor(private http: HttpClient) {}
     
   SelectorUsuarios(): Observable<any> {
+    console.log("Consultando a: " + this.apiUrl)
     return this.http.get(`${this.apiUrl}/usuarios/selector`)
   }
 

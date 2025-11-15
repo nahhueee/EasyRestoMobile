@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonContent, IonHeader, IonTitle, IonToolbar, IonButtons, IonButton, IonIcon, NavController, IonInput } from '@ionic/angular/standalone';
+import { IonContent, IonHeader, IonTitle, IonToolbar, IonButtons, IonButton, IonIcon, NavController, IonInput, LoadingController } from '@ionic/angular/standalone';
 import { NotificacionesService } from 'src/app/services/notificaciones.service';
 import { Router } from '@angular/router';
 
@@ -18,7 +18,8 @@ export class ServidorPage implements OnInit {
   constructor(
     private navCtrl: NavController,
     private notificaciones:NotificacionesService,
-    private router: Router
+    private router: Router,
+    private loadingCtrl: LoadingController,
   ) {
     const apiUrl = localStorage.getItem('apiUrl');
     if (apiUrl) {
@@ -29,11 +30,21 @@ export class ServidorPage implements OnInit {
   ngOnInit() {
   }
 
-  Confirmar(){
+  async Confirmar(){
     const apiUrl = 'http://' + this.ipServidor + ':7600/easyresto';
     localStorage.setItem('apiUrl', apiUrl);
     this.notificaciones.success('Cambios guardados correctamente');
-    this.router.navigate(['/ingresar']);
+
+    const loading = await this.loadingCtrl.create({
+      message: `Se reiniciará la app`,
+      spinner: 'circles'
+    });
+
+    await loading.present();
+
+    setTimeout(() => {
+        window.location.href = '/ingresar';
+    }, 2000);
   }
 
   Volver() {

@@ -41,9 +41,7 @@ export class MesasPage implements OnInit {
     this.ObtenerSalones();
 
     this.sub = this.recargaService.reload$.subscribe(tab => {
-      if (tab === 'mesas') {
-        this.ObtenerMesas(1);
-      }
+      this.ObtenerMesas(this.salonSeleccionado);
     });
   }
 

@@ -28,6 +28,10 @@ export class PedidosService {
     return this.http.get(`${this.apiUrl}/listas-precio/selector`)
   }
 
+  ActualizarEstadoImpreso(idPedido:number, ticketImp:string, comandaImp:string): Observable<any>{
+    return this.http.put('pedidos/actualizar-impreso', {idPedido, ticketImp, comandaImp})
+  }
+
    Guardar(ped:Pedido): Observable<any>{
     if(ped.id==0){
       return this.http.post(`${this.apiUrl}/pedidos/agregar`, ped)

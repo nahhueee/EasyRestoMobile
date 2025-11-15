@@ -1,0 +1,31 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button (click)="Volver()">
+        <ion-icon slot="icon-only" name="arrow-back"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Configurar Servidor</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="preferencias">
+    <div class="imagen">
+      <img src="assets/preference.png" alt="Preferencia"/>
+    </div>
+
+    <div class="checkbox-container">
+      <ion-checkbox 
+        labelPlacement="start" 
+        [(ngModel)]="mostrarImg">
+        Mostrar imágenes en la selección de productos
+      </ion-checkbox>
+    </div>
+
+    <ion-button expand="block" color="primary" (click)="Confirmar()">
+      <ion-icon name="checkmark-outline"></ion-icon>
+      Guardar Preferencias
+    </ion-button>
+</ion-content>
+
+

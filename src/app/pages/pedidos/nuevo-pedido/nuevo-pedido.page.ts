@@ -20,6 +20,7 @@ import {
   IonActionSheet,
   IonSelect,
   IonSelectOption,
+  LoadingController,
   IonTextarea,
   IonLabel, IonTab, IonTabs, IonTabBar, IonTabButton, IonList, IonFab, IonFabButton } from '@ionic/angular/standalone';
 import { PedidosService } from 'src/app/services/pedidos.service';
@@ -40,6 +41,7 @@ import { MesasService } from 'src/app/services/mesas.service';
 import { Pedido } from 'src/app/models/Pedido';
 import { Usuario } from 'src/app/models/Usuario';
 import { RecargaService } from 'src/app/services/recarga.service';
+import { UsuariosService } from 'src/app/services/usuarios.service';
 
 @Component({
   selector: 'app-nuevo-pedido',
@@ -69,9 +71,11 @@ import { RecargaService } from 'src/app/services/recarga.service';
   ]
 })
 export class NuevoPedidoPage implements OnInit {
+  ipServidor:string = "";
   mesaParametro: number = 0;
   pedidoParametro: number = 0;
   titulo:string = "Nuevo Pedido";
+  mostrarImg:string = 'false';
 
   //#region ELEGIR VARIEDADES
   categorias:Categoria[] = [];
@@ -99,6 +103,7 @@ export class NuevoPedidoPage implements OnInit {
   mesas:Mesa[]=[];
   mesaSeleccionada:number = 0;
   cliente:string = "";
+  idResponsable:number = 0;
 
   cantItems:number = 0;
   totalItems:number = 0;
@@ -114,7 +119,6 @@ export class NuevoPedidoPage implements OnInit {
   pedido:Pedido = new Pedido();
   //#endregion
 
-
   constructor(
     private navCtrl: NavController,
     private pedidosService: PedidosService,
@@ -124,8 +128,20 @@ export class NuevoPedidoPage implements OnInit {
     private router: Router,
     private actionSheetCtrl: ActionSheetController,
     private Notificaciones: NotificacionesService,
-    private recargaService: RecargaService
-  ) { }
+    private recargaService: RecargaService,
+    private usuariosService:UsuariosService,
+    private loadingCtrl: LoadingController,
+  ) { 
+    const sesion = this.usuariosService.GetSesion();
+    if (sesion) {
+      this.idResponsable = parseInt(sesion.data.idUsuario);
+    }
+
+    const apiUrl = localStorage.getItem('apiUrl');
+    if (apiUrl) {
+      this.ipServidor = new URL(apiUrl).hostname;
+    }
+  }
 
   ngOnInit() {
     this.ObtenerCategorias();
@@ -165,13 +181,26 @@ export class NuevoPedidoPage implements OnInit {
         .subscribe(response => {
 
           this.total = response.total;
+          
+          let registros:[] = [];
+
+          // Mapeo de registros reemplazando la IP, para que se vean las imagenes
+          this.mostrarImg = localStorage.getItem('mostrarImg') ?? 'false';
+          if(this.mostrarImg == 'true'){
+            registros = response.registros.map((r: any) => ({
+              ...r,
+              imagen: r.imagen ? r.imagen.replace('127.0.0.1', this.ipServidor) : r.imagen
+            }));
+          }else{
+            registros = response.registros;
+          }    
 
           // Si es scroll, agregamos; si no, reemplazamos
           if (event) {
-            this.productos.push(...response.registros);
+            this.productos.push(...registros);
             event.target.complete(); // fin de scroll
           } else {
-            this.productos = response.registros; // reinicio por cambio de filtro
+            this.productos = registros; // reinicio por cambio de filtro
           }
           
           if (event) {
@@ -422,14 +451,13 @@ export class NuevoPedidoPage implements OnInit {
     this.modalObs.dismiss();
   }
 
-  GuardarPedido() {
+  async GuardarPedido() {
     if(this.pedidoParametro != 0){
       if(this.pedido.finalizado){
         this.Notificaciones.warn("No se puede modificar un pedido finalizado");
         return;
       }
     }
-
 
     const fechaActual = new Date();
 
@@ -447,18 +475,20 @@ export class NuevoPedidoPage implements OnInit {
     mesa.id = this.mesaSeleccionada;
     this.pedido.mesa = mesa;
 
-    // let responsable:string = this.formulario.get('responsable')?.value;
-    // if(responsable=="") responsable = this.authService.GetUsuarioId()!;
+    this.pedido.responsable = new Usuario({id:this.idResponsable});
     
-    var mozo = new Usuario();
-    mozo.id = 1;
-    this.pedido.responsable = mozo;
-
     var tipoPedido = new TipoPedido();
     tipoPedido.id = this.tipoSeleccionado;
     this.pedido.tipo = tipoPedido;
 
     this.pedido.detalles = this.detallePedido;
+
+    const loading = await this.loadingCtrl.create({
+      message: `Guardando Pedido`,
+      spinner: 'circles'
+    });
+
+    await loading.present();
 
     this.pedidosService.Guardar(this.pedido)
     .subscribe(response => {
@@ -481,6 +511,8 @@ export class NuevoPedidoPage implements OnInit {
       }else{
         this.Notificaciones.warn("Error al guardar pedido");
       }
+
+      loading.dismiss();
     });
   }
   

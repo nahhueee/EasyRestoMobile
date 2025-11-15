@@ -1,0 +1,38 @@
+.preferencias{
+    p{
+        margin: 6px 16px;
+    }
+    ion-button{
+        margin: 5px 16px;
+    }
+
+}
+
+.checkbox-container{
+  padding: 10px 16px !important;
+  background-color: var(--ion-color-light);
+  margin-bottom: 15px;
+}
+ion-checkbox {
+  width: 100%;
+  align-items: flex-start;
+}
+ion-checkbox::part(label) {
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: unset !important;
+}
+
+
+.imagen{
+    display:flex;
+    justify-content: center;
+    
+    img{
+        width: 150px;
+        height: 150px;
+        margin: 15px 0px;
+    }
+}
+
+

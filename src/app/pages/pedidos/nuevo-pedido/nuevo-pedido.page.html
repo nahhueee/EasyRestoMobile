@@ -41,14 +41,30 @@
       <ion-input label="Nombre del Producto" [clearInput]="true" label-placement="floating" fill="outline" [(ngModel)]="producto" (input)="BuscarProductos()" placeholder="Ingresa un nombre para buscar"></ion-input>
 
       <!-- Lista de resultados -->
-      <div class="productos">
-        @for (producto of productos; track $index) {
-          <div class="producto-item" (click)="SeleccionarProducto(producto)">
-            <p>{{producto.nombre}}</p>
-            <span>${{producto.precios![0].precio | decimalFormat}}</span>
+      @if(productos.length > 0){
+        <div class="productos">
+          @for (producto of productos; track $index) {
+            <div class="producto-item" (click)="SeleccionarProducto(producto)">
+              <img [src]="producto.imagen" alt="imagen">
+
+              <div class="data">
+                <p>{{producto.nombre}}</p>
+                <span>${{producto.precios![0].precio | decimalFormat}}</span>
+              </div>
+            </div>
+          }
+        </div>
+      }
+      
+      @if(categoriaSeleccionada == undefined && producto == ''){
+        <div class="alerta alerta-info">
+          <span class="alerta-icon">ℹ️</span>
+          <div class="alerta-texto">
+              Selecciona una categoria o escribe un nombre para buscar
           </div>
-        }
-      </div>
+        </div>
+      }
+      
 
       <!-- Modal Categorias -->
       <ion-modal #modalCategorias id="modalCategorias">

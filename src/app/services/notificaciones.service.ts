@@ -41,7 +41,7 @@ export class NotificacionesService {
     await toast.present();
   }
 
-  async error(message:string, duration:number = 2000){
+  async error(message:string, duration:number = 3000){
     const toast = await this.toastController.create({
       message,
       duration: duration,

@@ -23,6 +23,9 @@ import { NotificacionesService } from 'src/app/services/notificaciones.service';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { RecargaService } from 'src/app/services/recarga.service';
+import { UsuariosService } from 'src/app/services/usuarios.service';
+import { FilesService } from 'src/app/services/files.service';
+import moment from 'moment';
 
 @Component({
   selector: 'app-pedidos',
@@ -55,6 +58,7 @@ export class PedidosPage implements OnInit {
   pagina:number = 1;
   total:number = 0;
   finalizados:boolean = false;
+  idResponsable:number = 0;
 
   pedidos:any[] = [];
   
@@ -63,14 +67,19 @@ export class PedidosPage implements OnInit {
     private pedidosService:PedidosService,
     private actionSheetCtrl: ActionSheetController,
     private Notificaciones: NotificacionesService,
-    private recargaService: RecargaService
-  ) { }
+    private recargaService: RecargaService,
+    private usuarioService: UsuariosService,
+    private filesService: FilesService
+  ) { 
+    const sesion = this.usuarioService.GetSesion();
+    if (sesion) {
+      this.idResponsable = parseInt(sesion.data.idUsuario);
+    }
+  }
 
   ngOnInit() {
     this.sub = this.recargaService.reload$.subscribe(tab => {
-      if (tab === 'pedidos') {
-        this.ObtenerPedidos();
-      }
+      this.ObtenerPedidos();
     });
 
     this.ObtenerPedidos();
@@ -89,7 +98,7 @@ export class PedidosPage implements OnInit {
     filtro.tamanioPagina = 15;
     filtro.tipoPedido = 1;
     filtro.finalizado = this.finalizados;
-    filtro.responsable = 0;
+    filtro.responsable = this.idResponsable;
     filtro.idPedido = 0; 
 
     // Obtiene listado de pedidos y el total
@@ -144,14 +153,48 @@ export class PedidosPage implements OnInit {
 
   // Métodos de impresión
   ImprimirComprobante(item: any) {
-    console.log('Imprimiendo comprobante de:', item);
-    this.Notificaciones.success("Comprobante impreso", 2000);
+    this.filesService.ImprimirPDF('comprobante', item, 'interno')
+    .subscribe(response => {
+      if(response == 'OK'){
+        this.Notificaciones.success("Comprobante impreso", 2000);
+
+        item.ticketImp = moment().format("DD/MM/YY HH:mm");
+        this.pedidosService.ActualizarEstadoImpreso(item.id!, item.ticketImp!, item.comandaImp!);
+      }
+    });
+
+    //Para ver y descargar
+    // this.filesService.VerComprobante(item, 'interno').subscribe(response => {
+    //   const blob = new Blob([response], { type: 'application/pdf' });
+    //   const url = window.URL.createObjectURL(blob);
+    //   const a = document.createElement('a');
+    //   a.href = url;
+    //   a.download = 'Comprobante.pdf';
+    //   a.click();
+    //   window.URL.revokeObjectURL(url);
+    // });
   }
 
   ImprimirComanda(item: any) {
-    console.log('Imprimiendo comanda de:', item);
-    this.Notificaciones.success("Comanda impresa", 2000)
-    // Aquí tu lógica real de impresión (Node.js / impresora)
+    this.filesService.ImprimirPDF('comanda', item, '')
+    .subscribe(response => {
+      if(response == 'OK'){
+        this.Notificaciones.success("Comanda impresa", 2000);
+        item.comandaImp = moment().format("DD/MM/YY HH:mm");
+        this.pedidosService.ActualizarEstadoImpreso(item.id!, item.ticketImp!, item.comandaImp!);
+      }
+    });
+
+    //Para ver y descargar
+    // this.filesService.VerComanda(item).subscribe(response => {
+    //   const blob = new Blob([response], { type: 'application/pdf' });
+    //   const url = window.URL.createObjectURL(blob);
+    //   const a = document.createElement('a');
+    //   a.href = url;
+    //   a.download = 'Comanda.pdf';
+    //   a.click();
+    //   window.URL.revokeObjectURL(url);
+    // });
   }
 
   ngOnDestroy() {
