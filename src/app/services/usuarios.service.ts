@@ -9,11 +9,10 @@ import { HttpClient } from '@angular/common/http';
   providedIn: 'root'
 })
 export class UsuariosService {
-  apiUrl:string = localStorage.getItem('apiUrl')! ?? environment.apiUrl;
+  apiUrl:string = localStorage.getItem('apiUrl')!;
   constructor(private http: HttpClient) {}
     
   SelectorUsuarios(): Observable<any> {
-    console.log("Consultando a: " + this.apiUrl)
     return this.http.get(`${this.apiUrl}/usuarios/selector`)
   }
 

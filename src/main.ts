@@ -8,7 +8,9 @@ import { AppComponent } from './app/app.component';
 import { addIcons } from 'ionicons';
 import * as allIcons from 'ionicons/icons';
 import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
-import { HttpErrorHandlerService } from './app/services/http-error-handler.service';
+import { HttpErrorHandlerService } from './app/services/http-error-handler.service'
+import { provideToastr } from 'ngx-toastr';
+import { provideAnimations } from '@angular/platform-browser/animations';
 addIcons(allIcons);
 
 bootstrapApplication(AppComponent, {
@@ -18,6 +20,18 @@ bootstrapApplication(AppComponent, {
     provideIonicAngular(),
     provideRouter(routes, withPreloading(PreloadAllModules)),
     provideHttpClient(),
+    provideAnimations(),
+    provideToastr({
+      positionClass: 'toast-top-center',
+      toastClass: 'ngx-toastr ionic-toast',
+      iconClasses: {
+        error: 'ionic-toast-error',
+        info: 'ionic-toast-info',
+        success: 'ionic-toast-success',
+        warning: 'ionic-toast-warning',
+      },
+      timeOut: 3000,
+    }),
     provideHttpClient(withInterceptorsFromDi())
   ],
 });

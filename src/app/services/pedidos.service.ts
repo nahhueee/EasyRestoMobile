@@ -9,7 +9,7 @@ import { Pedido } from '../models/Pedido';
   providedIn: 'root'
 })
 export class PedidosService {
-  apiUrl:string = localStorage.getItem('apiUrl')! ?? environment.apiUrl;
+  apiUrl:string = localStorage.getItem('apiUrl')!;
   constructor(private http: HttpClient) {}
 
   ObtenerPedidos(filtro:FiltroPedido): Observable<any> {

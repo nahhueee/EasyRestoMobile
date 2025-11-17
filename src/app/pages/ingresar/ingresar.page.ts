@@ -16,12 +16,16 @@ import { Router } from '@angular/router';
 export class IngresarPage implements OnInit {
   usuarios:Usuario[] = [];
   usuarioSeleccionado:Usuario = new Usuario();
+  ipApi:string = "";
 
   constructor(
     private usuariosService:UsuariosService,
     private loadingCtrl: LoadingController,
     private router: Router
-  ) { }
+  ) {
+    const url = localStorage.getItem('apiUrl') ?? '';
+    this.ipApi = url.replace(/https?:\/\//, '').split(':')[0];
+  }
 
   handleRefresh(event: any) {
     this.ObtenerUsuarios(); 

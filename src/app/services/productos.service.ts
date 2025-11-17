@@ -8,7 +8,7 @@ import { FiltroProducto } from '../models/FiltroProducto';
   providedIn: 'root'
 })
 export class ProductosService {
-  apiUrl:string = localStorage.getItem('apiUrl')! ?? environment.apiUrl;
+  apiUrl:string = localStorage.getItem('apiUrl')!;
   constructor(private http: HttpClient) {}
 
   ObtenerProductos(filtro:FiltroProducto): Observable<any> {
