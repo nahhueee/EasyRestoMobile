@@ -175,8 +175,6 @@ export class NuevoPedidoPage implements OnInit {
       return;
     } 
 
-    console.log(this.producto)
-
     const filtro = new FiltroProducto();
     filtro.pagina = this.pagina,
     filtro.tamanioPagina = 8;
@@ -218,6 +216,11 @@ export class NuevoPedidoPage implements OnInit {
             event.target.disabled = true;
           }
     });
+  }
+
+  LimpiarBuscar() {
+    this.producto = '';
+    this.BuscarProductos();
   }
 
   CargarDatos(event: any) {
@@ -408,7 +411,14 @@ export class NuevoPedidoPage implements OnInit {
   }
 
   ObtenerMesas(){
-    this.mesasService.ObtenerMesas(0)
+    let usuario = 0;
+
+    const todasLasMesas = localStorage.getItem('todasLasMesas');
+    if(todasLasMesas=='false'){
+      const sesion = this.usuariosService.GetSesion();
+      usuario = sesion ? sesion.data.idUsuario : 0;
+    }
+    this.mesasService.ObtenerMesas(0, usuario)
       .subscribe(response => {
         this.mesas = response;
       });

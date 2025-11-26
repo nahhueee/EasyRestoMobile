@@ -14,6 +14,16 @@ export class AppComponent {
     private apiService:ApiService
   ) {
     this.ObtenerApiUrl();
+
+    //Definiendo local storage de preferencias
+    if (localStorage.getItem('mostrarImg') === null) {
+      localStorage.setItem('mostrarImg', 'false');
+    }
+
+    if (localStorage.getItem('todasLasMesas') === null) {
+        localStorage.setItem('todasLasMesas', 'true');
+    }
+
   }
   async ObtenerApiUrl(){
     let apiUrl = environment.apiUrl;

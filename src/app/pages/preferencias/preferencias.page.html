@@ -21,6 +21,13 @@
         Mostrar imágenes en la selección de productos
       </ion-checkbox>
     </div>
+    <div class="checkbox-container">
+      <ion-checkbox 
+        labelPlacement="start" 
+        [(ngModel)]="todasLasMesas">
+        Mostrar todas las mesas en el selector de mesas
+      </ion-checkbox>
+    </div>
 
     <ion-button expand="block" color="primary" (click)="Confirmar()">
       <ion-icon name="checkmark-outline"></ion-icon>

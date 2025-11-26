@@ -24,9 +24,18 @@
   </ion-refresher>
 
   <!-- Lista de resultados -->
-  <div class="grid">
-    <div class="card" *ngFor="let mesa of mesas" [class.ocupada]="mesa.idPedido != 0" (click)="NuevoPedido(mesa)">
-      <h3>{{ mesa.codigo }}</h3>
+  @if (mesas.length == 0) {
+   <div class="alerta alerta-warn">
+        <span class="alerta-icon">⚠️</span>
+        <div class="alerta-texto">
+          No se encontraron mesas disponibles en este salón. Es posible que aún no tengas mesas asignadas.        
+        </div>
     </div>
-  </div>
+  }@else {
+    <div class="grid">
+      <div class="card" *ngFor="let mesa of mesas" [class.ocupada]="mesa.idPedido != 0" (click)="NuevoPedido(mesa)">
+        <h3>{{ mesa.codigo }}</h3>
+      </div>
+    </div>
+  }
 </ion-content>

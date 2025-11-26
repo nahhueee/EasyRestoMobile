@@ -10,8 +10,8 @@ export class MesasService {
   apiUrl:string = localStorage.getItem('apiUrl')!;
   constructor(private http: HttpClient) {}
 
-  ObtenerMesas(idSalon: number): Observable<any> {
-    return this.http.get(`${this.apiUrl}/mesas/obtener/${idSalon}`);
+  ObtenerMesas(idSalon: number, idUsuario: number): Observable<any> {
+    return this.http.get(`${this.apiUrl}/mesas/obtener/${idSalon}/${idUsuario}`);
   }
 
   ObtenerSalones(): Observable<any> {

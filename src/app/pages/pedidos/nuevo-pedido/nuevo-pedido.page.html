@@ -38,7 +38,19 @@
       }
 
       <!-- Input busqueda -->
-      <ion-input label="Nombre del Producto" [clearInput]="true" label-placement="floating" fill="outline" [(ngModel)]="producto" (input)="BuscarProductos()" placeholder="Ingresa un nombre para buscar"></ion-input>
+      <div class="input-busqueda">
+        <ion-input
+          [(ngModel)]="producto"
+          (input)="BuscarProductos()"
+          placeholder="Ingresa un nombre para buscar"
+          label-placement="floating" fill="outline"
+          label="Nombre del Producto"
+          >
+        </ion-input>
+        <ion-button slot="end" fill="clear" [disabled]="producto == ''" (click)="LimpiarBuscar()">
+          <ion-icon name="close-outline"></ion-icon>
+        </ion-button>
+      </div>
 
       <!-- Lista de resultados -->
       @if(productos.length > 0){

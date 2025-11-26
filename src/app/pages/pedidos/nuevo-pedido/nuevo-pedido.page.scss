@@ -154,6 +154,23 @@ ion-input, ion-textarea{
   padding: 10px 16px !important;
   background-color: var(--ion-color-light);
 }
+
+.input-busqueda{
+  display: flex;
+
+  ion-input{
+    padding-right: 0% !important;
+  }
+
+  ion-button{
+    background-color: var(--ion-color-light);
+    margin: 0%;
+    padding: 0px 6px;
+}
+  ion-icon{
+    transform: scale(1.6);
+  }
+}
 /*#endregion */
 
 /*#region CONFIRMAR PEDIDO*/
