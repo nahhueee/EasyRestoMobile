@@ -72,7 +72,6 @@ export class MesasPage implements OnInit {
       const sesion = this.usuarioService.GetSesion();
       usuario = sesion ? sesion.data.idUsuario : 0;
     }
-        console.log(todasLasMesas)
 
     this.mesasService.ObtenerMesas(idSalon, usuario)
       .subscribe(response => {
@@ -84,7 +83,7 @@ export class MesasPage implements OnInit {
     if(mesa.idPedido != 0){
       this.router.navigate(['/actualizar-pedido', mesa.idPedido]);
     }else{
-      this.router.navigate(['/nuevo-pedido', mesa.codigo]);
+      this.router.navigate(['/nuevo-pedido', mesa.id]);
     }
   }
 
