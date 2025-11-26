@@ -87,7 +87,7 @@
 .categoria-item span {
   font-size: 12px;
   text-align: center;
-  color: #c0c0c0;
+  color: var(--ion-color-medium);
 }
 
 .ver-mas ion-icon {
@@ -119,6 +119,7 @@
   background-color: var(--ion-color-light);
   border-radius: 10px;
   box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  height: 100%;
 
   img{
     height: 80px;
@@ -140,6 +141,7 @@
     margin: 0%;
     margin-bottom: 6px;
     font-size: 16px;
+    text-align: center;
   }
 
   span{
@@ -157,17 +159,16 @@ ion-input, ion-textarea{
 /*#region CONFIRMAR PEDIDO*/
 ion-segment {
   padding: 10px 16px;
-  --background: #181818;
+  background-color: var(--ion-color-light);
 }
 
 ion-segment-button {
-  color: #bbb;
   transition: 0.2s ease;
   padding: 10px 5px;
 }
 
 ion-segment-button.opcion-activa {
-  color: #fff;
+  color: var(--ion-color-primary);
   border-radius: 8px;
 }
 
@@ -185,11 +186,9 @@ ion-select{
 .detalle-card {
   width: 100%;
   display: flex;
-  flex-direction: column;
   padding: 10px;
   border-radius: 10px;
   background-color: var(--ion-color-light);
-  color: #fff;
   margin-bottom: 10px;
   box-shadow: 0 2px 6px rgba(0,0,0,0.3);
 

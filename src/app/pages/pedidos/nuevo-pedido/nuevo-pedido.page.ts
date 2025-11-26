@@ -22,7 +22,7 @@ import {
   IonSelectOption,
   LoadingController,
   IonTextarea,
-  IonLabel, IonTab, IonTabs, IonTabBar, IonTabButton, IonList, IonFab, IonFabButton } from '@ionic/angular/standalone';
+  IonLabel, IonTab, IonTabs, IonTabBar, IonTabButton, IonList, IonFab, IonFabButton, IonInfiniteScroll, IonInfiniteScrollContent } from '@ionic/angular/standalone';
 import { PedidosService } from 'src/app/services/pedidos.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Categoria } from 'src/app/models/Categoria';
@@ -48,7 +48,7 @@ import { UsuariosService } from 'src/app/services/usuarios.service';
   templateUrl: './nuevo-pedido.page.html',
   styleUrls: ['./nuevo-pedido.page.scss'],
   standalone: true,
-  imports: [IonFabButton, IonFab, IonList, IonTabButton, IonTabBar, IonTabs, IonTab, IonFooter, IonTextarea,
+  imports: [IonInfiniteScrollContent, IonInfiniteScroll, IonFabButton, IonFab, IonList, IonTabButton, IonTabBar, IonTabs, IonTab, IonFooter, IonTextarea,
     IonInput, 
     IonItem, 
     IonModal, 
@@ -75,7 +75,7 @@ export class NuevoPedidoPage implements OnInit {
   mesaParametro: number = 0;
   pedidoParametro: number = 0;
   titulo:string = "Nuevo Pedido";
-  mostrarImg:string = 'false';
+  mostrarImg:boolean = false;
 
   //#region ELEGIR VARIEDADES
   categorias:Categoria[] = [];
@@ -141,6 +141,11 @@ export class NuevoPedidoPage implements OnInit {
     if (apiUrl) {
       this.ipServidor = new URL(apiUrl).hostname;
     }
+
+    const img = localStorage.getItem('mostrarImg');
+    if(img){
+      if(img=='true') this.mostrarImg = true;
+    }
   }
 
   ngOnInit() {
@@ -170,9 +175,11 @@ export class NuevoPedidoPage implements OnInit {
       return;
     } 
 
+    console.log(this.producto)
+
     const filtro = new FiltroProducto();
     filtro.pagina = this.pagina,
-    filtro.tamanioPagina = 10;
+    filtro.tamanioPagina = 8;
     filtro.busqueda = this.producto;
     filtro.categoria = this.categoriaSeleccionada ? this.categoriaSeleccionada.id! : 0; 
 
@@ -185,8 +192,7 @@ export class NuevoPedidoPage implements OnInit {
           let registros:[] = [];
 
           // Mapeo de registros reemplazando la IP, para que se vean las imagenes
-          this.mostrarImg = localStorage.getItem('mostrarImg') ?? 'false';
-          if(this.mostrarImg == 'true'){
+          if(this.mostrarImg){
             registros = response.registros.map((r: any) => ({
               ...r,
               imagen: r.imagen ? r.imagen.replace('127.0.0.1', this.ipServidor) : r.imagen

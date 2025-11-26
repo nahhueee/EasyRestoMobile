@@ -45,7 +45,9 @@
         <div class="productos">
           @for (producto of productos; track $index) {
             <div class="producto-item" (click)="SeleccionarProducto(producto)">
-              <img [src]="producto.imagen" alt="imagen">
+              @if(mostrarImg){
+                <img [src]="producto.imagen" alt="imagen">
+              }
 
               <div class="data">
                 <p>{{producto.nombre}}</p>
@@ -64,6 +66,14 @@
           </div>
         </div>
       }
+
+      <!-- Scroll Infinito -->
+      <ion-infinite-scroll threshold="100px" (ionInfinite)="CargarDatos($event)" [disabled]="productos.length === 0 || productos.length >= total">
+      <ion-infinite-scroll-content
+          loadingSpinner="bubbles"
+          loadingText="Cargando más pedidos...">
+      </ion-infinite-scroll-content>
+      </ion-infinite-scroll>
       
 
       <!-- Modal Categorias -->
