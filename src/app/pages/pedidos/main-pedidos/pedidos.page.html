@@ -40,9 +40,16 @@
                     <p><strong>Total: </strong>${{item.total | decimalFormat}}</p>
                 </div>
                
-                <ion-button size="large" (click)="AbrirAcciones(item); $event.stopPropagation()">
+                @if(permitirImpComprobante){
+                  <ion-button size="large" (click)="AbrirAcciones(item); $event.stopPropagation()">
                     <ion-icon slot="icon-only" ios="print-outline" md="print-outline"></ion-icon>
-                </ion-button>
+                  </ion-button>
+                }@else {
+                  <ion-button size="large" (click)="ImprimirComanda(item); $event.stopPropagation()">
+                    <ion-icon slot="icon-only" ios="print-outline" md="print-outline"></ion-icon>
+                  </ion-button>
+                }
+                
             </div>
             
         </ion-item>

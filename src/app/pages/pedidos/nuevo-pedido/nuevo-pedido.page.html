@@ -178,10 +178,16 @@
         }
       </ion-select>
 
+      @if(pedido.obs && pedido.obs.length > 0){
+        <div class="advertencia">
+          Pedido Observado
+        </div>
+      }
       <ion-button class="btnObservar" expand="block" color="primary" (click)="AbrirModalObs(0, 'pedido')">
         <ion-icon name="chatbox-ellipses-outline" slot="start"></ion-icon>
         Observar Pedido
       </ion-button>
+      
 
       <!-- Lista de Detalle Pedido -->
       <ion-list>
@@ -189,9 +195,14 @@
           <span>Lista de Variedades del Pedido</span>
         </div>
 
-        <div class="totales">
-          <p><strong>Cant: </strong>{{cantItems}}</p>
-          <p><strong>Total: ${{totalItems | decimalFormat}}</strong></p>
+        <div class="footer">
+          <div class="totales">
+            <p><strong>Cant: </strong>{{cantItems}}</p>
+            <p><strong>Total: ${{totalItems | decimalFormat}}</strong></p>
+          </div>
+          <div *ngIf="cantItems > 0">
+            <p class="advertencia">{{advertencia}}</p>
+          </div>
         </div>
 
         @for (item of detallePedido; track item; let i = $index) {
@@ -204,7 +215,7 @@
               </div>
 
               @if(item.obs && item.obs.length > 0){
-                <div class="aviso">
+                <div class="advertencia">
                   Observado
                 </div>
               }
@@ -227,7 +238,7 @@
       </ion-list>
 
       <!-- Modal Observaciones -->
-      <ion-modal #modalObs id="modalObs">
+      <ion-modal #modalObs id="modalObs" (didPresent)="FocusInput()">
         <ng-template>
           <ion-header>
 
@@ -245,7 +256,12 @@
             <p>Agrega una observación para este {{modalAbierto}}</p>
             <strong>{{productoSeleccionado}}</strong>
 
-            <ion-textarea label="Observación" label-placement="floating" fill="outline" [(ngModel)]="observacion"></ion-textarea>
+            <ion-textarea 
+              label="Observación" 
+              label-placement="floating" 
+              fill="outline" 
+              #obsInput
+              [(ngModel)]="observacion"></ion-textarea>
 
             <ion-button expand="block" color="primary" (click)="ConfimarObs()">
               <ion-icon name="checkmark-outline"></ion-icon>
@@ -280,7 +296,5 @@
     </ion-tab-button>
   </ion-tab-bar>
 </ion-tabs>
-
-
 
 

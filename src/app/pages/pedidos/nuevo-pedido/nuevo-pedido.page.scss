@@ -257,17 +257,24 @@ ion-select{
 }
 
 //Totales
+.footer{
+  margin: 10px 16px;
+  p{
+    margin: 0%;
+  }
+}
 .totales{
   display: flex;
   justify-content: space-between;
   padding: 10px;
-  margin: 10px 16px;
   border-radius: 10px;
+  margin-bottom: 5px;
   background-color: var(--ion-color-light);
-
-  p{
-    margin: 0%;
-  }
+}
+.advertencia{
+  text-align: center;
+  font-size: 13px;
+  color: var(--ion-color-warning);
 }
 
 //footer

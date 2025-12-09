@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { NavController } from '@ionic/angular';
 import { DecimalFormatPipe } from '../../../pipes/decimal.pipe';
 import { 
+  AlertController,
   IonContent, 
   IonHeader, 
   IonTitle, 
@@ -22,7 +23,8 @@ import {
   IonSelectOption,
   LoadingController,
   IonTextarea,
-  IonLabel, IonTab, IonTabs, IonTabBar, IonTabButton, IonList, IonFab, IonFabButton, IonInfiniteScroll, IonInfiniteScrollContent } from '@ionic/angular/standalone';
+  IonLabel, 
+  IonTab, IonTabs, IonTabBar, IonTabButton, IonList, IonFab, IonFabButton, IonInfiniteScroll, IonInfiniteScrollContent, IonAlert } from '@ionic/angular/standalone';
 import { PedidosService } from 'src/app/services/pedidos.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Categoria } from 'src/app/models/Categoria';
@@ -42,6 +44,9 @@ import { Pedido } from 'src/app/models/Pedido';
 import { Usuario } from 'src/app/models/Usuario';
 import { RecargaService } from 'src/app/services/recarga.service';
 import { UsuariosService } from 'src/app/services/usuarios.service';
+import { ParametrosService } from 'src/app/services/parametros.service';
+import moment from 'moment';
+import { FilesService } from 'src/app/services/files.service';
 
 @Component({
   selector: 'app-nuevo-pedido',
@@ -68,6 +73,7 @@ import { UsuariosService } from 'src/app/services/usuarios.service';
     IonLabel,
     IonActionSheet,
     DecimalFormatPipe,
+    
   ]
 })
 export class NuevoPedidoPage implements OnInit {
@@ -93,6 +99,7 @@ export class NuevoPedidoPage implements OnInit {
   total:number = 0;
 
   @ViewChild('modalCategorias', { static: false }) modalCategorias!: IonModal;
+  @ViewChild('obsInput') obsInput!: IonTextarea;
   //#endregion
 
   //#region CONFIRMAR PEDIDO
@@ -117,6 +124,23 @@ export class NuevoPedidoPage implements OnInit {
   @ViewChild('modalObs', { static: false }) modalObs!: IonModal;
 
   pedido:Pedido = new Pedido();
+  alertButtons = [
+    {
+      text: 'No, cerrar',
+      role: 'cancel',
+      handler: () => {
+        this.SeguirFlujoDespuesDelPedido();
+      },
+    },
+    {
+      text: 'Si, imprimir',
+      role: 'confirm',
+      handler: () => {
+        this.ImprimirComanda();
+      },
+    },
+  ];
+
   //#endregion
 
   constructor(
@@ -131,7 +155,11 @@ export class NuevoPedidoPage implements OnInit {
     private recargaService: RecargaService,
     private usuariosService:UsuariosService,
     private loadingCtrl: LoadingController,
+    private parametrosService:ParametrosService,
+    private alertCtrl: AlertController,
+    private filesService: FilesService
   ) { 
+    
     const sesion = this.usuariosService.GetSesion();
     if (sesion) {
       this.idResponsable = parseInt(sesion.data.idUsuario);
@@ -142,10 +170,7 @@ export class NuevoPedidoPage implements OnInit {
       this.ipServidor = new URL(apiUrl).hostname;
     }
 
-    const img = localStorage.getItem('mostrarImg');
-    if(img){
-      if(img=='true') this.mostrarImg = true;
-    }
+    this.mostrarImg  = this.parametrosService.ObtenerParametrosLocal().imagenes!;
   }
 
   ngOnInit() {
@@ -367,7 +392,6 @@ export class NuevoPedidoPage implements OnInit {
     this.pedidosService.ObtenerPedido(idPedido)
     .subscribe(response => {
       this.pedido = response;
-      //this.formulario.get('responsable')?.setValue(this.pedido.responsable?.id);
       this.tipoSeleccionado = this.pedido.tipo?.id!;
       this.mesaSeleccionada = this.pedido.mesa?.id!;
       this.cliente = this.pedido.cliente!;
@@ -413,8 +437,9 @@ export class NuevoPedidoPage implements OnInit {
   ObtenerMesas(){
     let usuario = 0;
 
-    const todasLasMesas = localStorage.getItem('todasLasMesas');
-    if(todasLasMesas=='false'){
+    const todasLasMesas = this.parametrosService.ObtenerParametrosLocal().todasMesas;
+
+    if(!todasLasMesas){
       const sesion = this.usuariosService.GetSesion();
       usuario = sesion ? sesion.data.idUsuario : 0;
     }
@@ -450,6 +475,12 @@ export class NuevoPedidoPage implements OnInit {
     }
     
     this.modalObs.present();
+  }
+
+  FocusInput() {
+    if (this.obsInput) {
+      this.obsInput.setFocus(); 
+    }
   }
 
   ConfimarObs(){
@@ -507,28 +538,49 @@ export class NuevoPedidoPage implements OnInit {
     await loading.present();
 
     this.pedidosService.Guardar(this.pedido)
-    .subscribe(response => {
-      if(response=='OK'){
+    .subscribe(async response => {
+      if(response!=0){
         if(this.pedidoParametro != 0){
           this.Notificaciones.success("Pedido modificado correctamente");
+          this.SeguirFlujoDespuesDelPedido();
         }else{
           this.Notificaciones.success("Pedido creado correctamente");
-        }
-        
-        if(this.mesaParametro == 0){
-          this.router.navigate(['inicio', 'pedidos']);
-          this.recargaService.emitirRecarga('pedidos')
-        }
-        else{
-          this.router.navigate(['inicio', 'mesas']);
-          this.recargaService.emitirRecarga('mesas')
-        }
 
+          this.pedido.id = response;
+          const alert = await this.alertCtrl.create({
+            header: 'Pedido Guardado Correctamente',
+            message: '¿Deseas imprimir la comanda?',
+            buttons: this.alertButtons
+          });
+          await alert.present();
+        }
       }else{
         this.Notificaciones.warn("Error al guardar pedido");
       }
 
       loading.dismiss();
+    });
+  }
+
+  SeguirFlujoDespuesDelPedido() {
+    if (this.mesaParametro == 0) {
+      this.router.navigate(['inicio', 'pedidos']);
+      this.recargaService.emitirRecarga('pedidos');
+    } else {
+      this.router.navigate(['inicio', 'mesas']);
+      this.recargaService.emitirRecarga('mesas');
+    }
+  }
+
+  ImprimirComanda() {
+    this.filesService.ImprimirPDF('comanda', this.pedido, '')
+    .subscribe(response => {
+      if(response == 'OK'){
+        this.Notificaciones.success("Comanda impresa", 2000);
+        this.pedidosService.ActualizarEstadoImpreso(this.pedido.id, "", moment().format("DD/MM/YY HH:mm"));
+      }
+
+      this.SeguirFlujoDespuesDelPedido();
     });
   }
   

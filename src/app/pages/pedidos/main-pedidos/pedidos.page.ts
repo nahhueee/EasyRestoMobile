@@ -26,6 +26,7 @@ import { RecargaService } from 'src/app/services/recarga.service';
 import { UsuariosService } from 'src/app/services/usuarios.service';
 import { FilesService } from 'src/app/services/files.service';
 import moment from 'moment';
+import { ParametrosService } from 'src/app/services/parametros.service';
 
 @Component({
   selector: 'app-pedidos',
@@ -54,6 +55,7 @@ import moment from 'moment';
 export class PedidosPage implements OnInit {
   sub!: Subscription;
   valorInicial:string = "pendientes";
+  permitirImpComprobante:boolean = false;
   
   pagina:number = 1;
   total:number = 0;
@@ -69,12 +71,15 @@ export class PedidosPage implements OnInit {
     private Notificaciones: NotificacionesService,
     private recargaService: RecargaService,
     private usuarioService: UsuariosService,
-    private filesService: FilesService
+    private filesService: FilesService,
+    private parametrosService:ParametrosService
   ) { 
     const sesion = this.usuarioService.GetSesion();
     if (sesion) {
       this.idResponsable = parseInt(sesion.data.idUsuario);
     }
+
+    this.permitirImpComprobante = this.parametrosService.ObtenerParametrosLocal().impComprobante!;
   }
 
   ngOnInit() {

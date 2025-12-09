@@ -16,6 +16,7 @@ import { Router } from '@angular/router';
 import { UsuariosService } from '../services/usuarios.service';
 import { environment } from 'src/environments/environment';
 import { NotificacionesService } from '../services/notificaciones.service';
+import { ParametrosService } from '../services/parametros.service';
 
 @Component({
   selector: 'app-home',
@@ -47,7 +48,8 @@ export class HomePage {
     private router: Router,
     private usuarioService:UsuariosService,
     private notificaciones:NotificacionesService,
-    private menuCtrl: MenuController
+    private menuCtrl: MenuController,
+    private parametrosService:ParametrosService
   ) {
     const sesion = this.usuarioService.GetSesion();
     if (sesion) {
@@ -59,6 +61,13 @@ export class HomePage {
     }
 
     this.versionApp = environment.version;
+  }
+
+  ngOnInit(){
+    this.parametrosService.ObtenerParametrosMobile()
+      .subscribe(async response => {
+      localStorage.setItem('parametros', JSON.stringify(response));
+    });
   }
 
   AbrirPreferencias(){

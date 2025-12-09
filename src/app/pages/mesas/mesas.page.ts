@@ -10,6 +10,7 @@ import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { RecargaService } from 'src/app/services/recarga.service';
 import { UsuariosService } from 'src/app/services/usuarios.service';
+import { ParametrosService } from 'src/app/services/parametros.service';
 
 @Component({
   selector: 'app-mesas',
@@ -36,7 +37,8 @@ export class MesasPage implements OnInit {
     private router:Router,
     private mesasService:MesasService,
     private recargaService: RecargaService,
-    private usuarioService:UsuariosService
+    private usuarioService:UsuariosService,
+    private parametrosService:ParametrosService
   ) { }
 
   ngOnInit() {
@@ -67,8 +69,9 @@ export class MesasPage implements OnInit {
   ObtenerMesas(idSalon:number){
     let usuario = 0;
 
-    const todasLasMesas = localStorage.getItem('todasLasMesas');
-    if(todasLasMesas=='false'){
+    const todasLasMesas = this.parametrosService.ObtenerParametrosLocal().todasMesas;
+    console.log(todasLasMesas)
+    if(!todasLasMesas){
       const sesion = this.usuarioService.GetSesion();
       usuario = sesion ? sesion.data.idUsuario : 0;
     }
