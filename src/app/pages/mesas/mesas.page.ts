@@ -70,7 +70,6 @@ export class MesasPage implements OnInit {
     let usuario = 0;
 
     const todasLasMesas = this.parametrosService.ObtenerParametrosLocal().todasMesas;
-    console.log(todasLasMesas)
     if(!todasLasMesas){
       const sesion = this.usuarioService.GetSesion();
       usuario = sesion ? sesion.data.idUsuario : 0;

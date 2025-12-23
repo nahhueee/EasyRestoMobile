@@ -11,15 +11,23 @@ export class ParametrosService {
    apiUrl:string = localStorage.getItem('apiUrl')!;
    constructor(private http: HttpClient) {}
 
-   ObtenerParametrosMobile(): Observable<any> {
-     return this.http.get(`${this.apiUrl}/parametros/obtener-mobile`)
-   }
+  ObtenerParametro(clave:string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/parametros/obtener/${clave}`)
+  }
 
-   ObtenerParametrosLocal():Parametro{
+  ObtenerParametrosMobile(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/parametros/obtener-mobile`)
+  }
+
+  ObtenerParametrosLocal():Parametro{
     const datosAlmacenados = localStorage.getItem('parametros');
     let parametros:Parametro;
 
     parametros = new Parametro(JSON.parse(datosAlmacenados!));
     return parametros;
-   }
+  }
+
+  ObtenerUltimaCajaActiva():Observable<any> {
+    return this.http.get(`${this.apiUrl}/cajas/obtener-ultima-activa`)
+  }
 }

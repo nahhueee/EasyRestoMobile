@@ -47,6 +47,7 @@ import { UsuariosService } from 'src/app/services/usuarios.service';
 import { ParametrosService } from 'src/app/services/parametros.service';
 import moment from 'moment';
 import { FilesService } from 'src/app/services/files.service';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-nuevo-pedido',
@@ -82,6 +83,7 @@ export class NuevoPedidoPage implements OnInit {
   pedidoParametro: number = 0;
   titulo:string = "Nuevo Pedido";
   mostrarImg:boolean = false;
+  idCaja:number = 0;
 
   //#region ELEGIR VARIEDADES
   categorias:Categoria[] = [];
@@ -111,6 +113,7 @@ export class NuevoPedidoPage implements OnInit {
   mesaSeleccionada:number = 0;
   cliente:string = "";
   idResponsable:number = 0;
+  nombreResponsable:string = "";
 
   cantItems:number = 0;
   totalItems:number = 0;
@@ -163,6 +166,7 @@ export class NuevoPedidoPage implements OnInit {
     const sesion = this.usuariosService.GetSesion();
     if (sesion) {
       this.idResponsable = parseInt(sesion.data.idUsuario);
+      this.nombreResponsable = sesion.data.nombre;
     }
 
     const apiUrl = localStorage.getItem('apiUrl');
@@ -174,6 +178,7 @@ export class NuevoPedidoPage implements OnInit {
   }
 
   ngOnInit() {
+
     this.ObtenerCategorias();
     this.ObtenerListasPrecio();
     this.ObtenerTiposPedido();
@@ -190,6 +195,17 @@ export class NuevoPedidoPage implements OnInit {
       this.pedidoParametro = parseInt(this.rutaActiva.snapshot.params['idPedido']);
       this.titulo = "Editar Pedido";
       this.ObtenerPedido(this.pedidoParametro);
+    }
+  }
+
+  async VerificarModoTrabajo(){
+    const modoTrabajo = await firstValueFrom(this.parametrosService.ObtenerParametro('modoTrabajo'));
+    if(modoTrabajo == 'cajas'){
+      this.idCaja =  await firstValueFrom(this.parametrosService.ObtenerUltimaCajaActiva());
+      if(this.idCaja == -1){
+        this.Notificaciones.warn("No hay cajas activas para agregar un pedido.");
+        return;
+      }
     }
   }
 
@@ -517,12 +533,14 @@ export class NuevoPedidoPage implements OnInit {
     this.pedido.cliente = this.cliente;
     this.pedido.total = this.totalItems;
     
-    if(this.mesaSeleccionada==0){this.mesaSeleccionada = 1}
+    if(this.idCaja > 0)
+      this.pedido.idCaja = this.idCaja;
+     
+    if(this.mesaSeleccionada==0){this.mesaSeleccionada = this.mesas[0].id!}
     var mesa = new Mesa();
-    mesa.id = this.mesaSeleccionada;
+    mesa = this.mesas.find(m => m.id == this.mesaSeleccionada)!;
     this.pedido.mesa = mesa;
-
-    this.pedido.responsable = new Usuario({id:this.idResponsable});
+    this.pedido.responsable = new Usuario({id:this.idResponsable, nombre:this.nombreResponsable});
     
     var tipoPedido = new TipoPedido();
     tipoPedido.id = this.tipoSeleccionado;
@@ -573,15 +591,28 @@ export class NuevoPedidoPage implements OnInit {
   }
 
   ImprimirComanda() {
-    this.filesService.ImprimirPDF('comanda', this.pedido, '')
-    .subscribe(response => {
-      if(response == 'OK'){
-        this.Notificaciones.success("Comanda impresa", 2000);
-        this.pedidosService.ActualizarEstadoImpreso(this.pedido.id, "", moment().format("DD/MM/YY HH:mm"));
-      }
-
+    console.log(this.pedido);
+    this.filesService.VerComanda(this.pedido).subscribe(response => {
+      const blob = new Blob([response], { type: 'application/pdf' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'Comanda.pdf';
+      a.click();
+      window.URL.revokeObjectURL(url);
       this.SeguirFlujoDespuesDelPedido();
+
     });
+
+    // this.filesService.ImprimirPDF('comanda', this.pedido, '')
+    // .subscribe(response => {
+    //   if(response == 'OK'){
+    //     this.Notificaciones.success("Comanda impresa", 2000);
+    //     this.pedidosService.ActualizarEstadoImpreso(this.pedido.id, "", moment().format("DD/MM/YY HH:mm"));
+    //   }
+
+    //   this.SeguirFlujoDespuesDelPedido();
+    // });
   }
   
   RecontarTotales() {

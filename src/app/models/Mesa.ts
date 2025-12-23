@@ -1,6 +1,7 @@
 export class Mesa{
     id? : number;
     codigo? : string;
+    nombre? : string; // Solo para la pantalla de nueva venta
     idSalon?: number;
     idPedido?:number;
     codGrupo: string = "";
@@ -14,6 +15,7 @@ export class Mesa{
       if (data) {
         this.id = data.id;
         this.codigo = data.codigo;
+        this.nombre = data.nombre;
         this.idSalon = data.idSalon;
         this.idPedido = data.idPedido;
         this.combinada = data.combinada;

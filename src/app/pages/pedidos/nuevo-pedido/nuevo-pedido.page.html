@@ -162,7 +162,7 @@
       @if(tipoSeleccionado === 1){
         <ion-select interface="popover" justify="space-between" label="Mesa" [(ngModel)]="mesaSeleccionada">
           @for(item of mesas; track item.id){
-            <ion-select-option [value]="item.id">{{item.codigo}}</ion-select-option>
+            <ion-select-option [value]="item.id">{{item.nombre}}</ion-select-option>
           }
         </ion-select>
       }@else {
