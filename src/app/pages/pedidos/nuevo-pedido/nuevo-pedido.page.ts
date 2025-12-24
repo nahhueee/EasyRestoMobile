@@ -204,9 +204,11 @@ export class NuevoPedidoPage implements OnInit {
       this.idCaja =  await firstValueFrom(this.parametrosService.ObtenerUltimaCajaActiva());
       if(this.idCaja == -1){
         this.Notificaciones.warn("No hay cajas activas para agregar un pedido.");
-        return;
+        return false;
       }
     }
+
+    return true;
   }
 
   //#region BUSCAR Y SELECCIONAR VARIEDADES
@@ -515,6 +517,9 @@ export class NuevoPedidoPage implements OnInit {
   }
 
   async GuardarPedido() {
+    const continuar = await this.VerificarModoTrabajo();
+    if(!continuar) return;
+
     if(this.pedidoParametro != 0){
       if(this.pedido.finalizado){
         this.Notificaciones.warn("No se puede modificar un pedido finalizado");
@@ -591,7 +596,6 @@ export class NuevoPedidoPage implements OnInit {
   }
 
   ImprimirComanda() {
-    console.log(this.pedido);
     this.filesService.VerComanda(this.pedido).subscribe(response => {
       const blob = new Blob([response], { type: 'application/pdf' });
       const url = window.URL.createObjectURL(blob);

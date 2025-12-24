@@ -181,26 +181,25 @@ export class PedidosPage implements OnInit {
   }
 
   ImprimirComanda(item: any) {
-    console.log(item);
-    // this.filesService.ImprimirPDF('comanda', item, '')
-    // .subscribe(response => {
-    //   if(response == 'OK'){
-    //     this.Notificaciones.success("Comanda impresa", 2000);
-    //     item.comandaImp = moment().format("DD/MM/YY HH:mm");
-    //     this.pedidosService.ActualizarEstadoImpreso(item.id!, item.ticketImp!, item.comandaImp!);
-    //   }
-    // });
+    this.filesService.ImprimirPDF('comanda', item, '')
+    .subscribe(response => {
+      if(response == 'OK'){
+        this.Notificaciones.success("Comanda impresa", 2000);
+        item.comandaImp = moment().format("DD/MM/YY HH:mm");
+        this.pedidosService.ActualizarEstadoImpreso(item.id!, item.ticketImp!, item.comandaImp!);
+      }
+    });
 
     //Para ver y descargar
-    this.filesService.VerComanda(item).subscribe(response => {
-      const blob = new Blob([response], { type: 'application/pdf' });
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'Comanda.pdf';
-      a.click();
-      window.URL.revokeObjectURL(url);
-    });
+    // this.filesService.VerComanda(item).subscribe(response => {
+    //   const blob = new Blob([response], { type: 'application/pdf' });
+    //   const url = window.URL.createObjectURL(blob);
+    //   const a = document.createElement('a');
+    //   a.href = url;
+    //   a.download = 'Comanda.pdf';
+    //   a.click();
+    //   window.URL.revokeObjectURL(url);
+    // });
   }
 
   ngOnDestroy() {
