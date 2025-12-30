@@ -596,27 +596,27 @@ export class NuevoPedidoPage implements OnInit {
   }
 
   ImprimirComanda() {
-    this.filesService.VerComanda(this.pedido).subscribe(response => {
-      const blob = new Blob([response], { type: 'application/pdf' });
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'Comanda.pdf';
-      a.click();
-      window.URL.revokeObjectURL(url);
-      this.SeguirFlujoDespuesDelPedido();
-
-    });
-
-    // this.filesService.ImprimirPDF('comanda', this.pedido, '')
-    // .subscribe(response => {
-    //   if(response == 'OK'){
-    //     this.Notificaciones.success("Comanda impresa", 2000);
-    //     this.pedidosService.ActualizarEstadoImpreso(this.pedido.id, "", moment().format("DD/MM/YY HH:mm"));
-    //   }
-
+    // this.filesService.VerComanda(this.pedido).subscribe(response => {
+    //   const blob = new Blob([response], { type: 'application/pdf' });
+    //   const url = window.URL.createObjectURL(blob);
+    //   const a = document.createElement('a');
+    //   a.href = url;
+    //   a.download = 'Comanda.pdf';
+    //   a.click();
+    //   window.URL.revokeObjectURL(url);
     //   this.SeguirFlujoDespuesDelPedido();
+
     // });
+
+    this.filesService.ImprimirPDF('comanda', this.pedido, '')
+    .subscribe(response => {
+      if(response == 'OK'){
+        this.Notificaciones.success("Comanda impresa", 2000);
+        this.pedidosService.ActualizarEstadoImpreso(this.pedido.id, "", moment().format("DD/MM/YY HH:mm"));
+      }
+
+      this.SeguirFlujoDespuesDelPedido();
+    });
   }
   
   RecontarTotales() {

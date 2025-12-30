@@ -5,6 +5,7 @@ import { IonContent, IonSelectOption, IonItem, IonButton, IonSelect, LoadingCont
 import { Usuario } from 'src/app/models/Usuario';
 import { UsuariosService } from 'src/app/services/usuarios.service';
 import { Router } from '@angular/router';
+import { RecargaService } from 'src/app/services/recarga.service';
 
 @Component({
   selector: 'app-ingresar',
@@ -20,6 +21,7 @@ export class IngresarPage implements OnInit {
 
   constructor(
     private usuariosService:UsuariosService,
+    private recargaService: RecargaService,
     private loadingCtrl: LoadingController,
     private router: Router
   ) {
@@ -71,7 +73,8 @@ export class IngresarPage implements OnInit {
         timestamp: new Date().getTime(), 
       };
       localStorage.setItem('sesion', JSON.stringify(sesion));
-      
+      this.recargaService.emitirRecarga('mesas'); //Para cuando vuelven a iniciar con otro usuario
+
       this.router.navigate(['/inicio']);
     }, 2000);
   }
