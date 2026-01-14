@@ -21,7 +21,7 @@ import { FiltroPedido } from 'src/app/models/Filtros/FiltroPedido';
 import { PedidosService } from 'src/app/services/pedidos.service';
 import { NotificacionesService } from 'src/app/services/notificaciones.service';
 import { Router } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { firstValueFrom, Subscription } from 'rxjs';
 import { RecargaService } from 'src/app/services/recarga.service';
 import { UsuariosService } from 'src/app/services/usuarios.service';
 import { FilesService } from 'src/app/services/files.service';
@@ -159,12 +159,12 @@ export class PedidosPage implements OnInit {
   // Métodos de impresión
   ImprimirComprobante(item: any) {
     this.filesService.ImprimirPDF('comprobante', item, 'interno')
-    .subscribe(response => {
+    .subscribe(async response => {
       if(response == 'OK'){
         this.Notificaciones.success("Comprobante impreso", 2000);
 
         item.ticketImp = moment().format("DD/MM/YY HH:mm");
-        this.pedidosService.ActualizarEstadoImpreso(item.id!, item.ticketImp!, item.comandaImp!);
+        await firstValueFrom(this.pedidosService.ActualizarEstadoImpreso(item.id!, item.ticketImp!, item.comandaImp!));
       }
     });
 
@@ -182,11 +182,12 @@ export class PedidosPage implements OnInit {
 
   ImprimirComanda(item: any) {
     this.filesService.ImprimirPDF('comanda', item, '')
-    .subscribe(response => {
+    .subscribe(async response => {
       if(response == 'OK'){
         this.Notificaciones.success("Comanda impresa", 2000);
         item.comandaImp = moment().format("DD/MM/YY HH:mm");
         this.pedidosService.ActualizarEstadoImpreso(item.id!, item.ticketImp!, item.comandaImp!);
+        await firstValueFrom(this.pedidosService.ActualizarEstadoImpreso(item.id!, item.ticketImp!, item.comandaImp!));
       }
     });
 

@@ -563,13 +563,14 @@ export class NuevoPedidoPage implements OnInit {
     this.pedidosService.Guardar(this.pedido)
     .subscribe(async response => {
       if(response!=0){
+        this.pedido.id = response;
+
         if(this.pedidoParametro != 0){
           this.Notificaciones.success("Pedido modificado correctamente");
           this.SeguirFlujoDespuesDelPedido();
         }else{
           this.Notificaciones.success("Pedido creado correctamente");
 
-          this.pedido.id = response;
           const alert = await this.alertCtrl.create({
             header: 'Pedido Guardado Correctamente',
             message: '¿Deseas imprimir la comanda?',
@@ -607,12 +608,12 @@ export class NuevoPedidoPage implements OnInit {
     //   this.SeguirFlujoDespuesDelPedido();
 
     // });
-
     this.filesService.ImprimirPDF('comanda', this.pedido, '')
-    .subscribe(response => {
+    .subscribe(async response => {
+
       if(response == 'OK'){
         this.Notificaciones.success("Comanda impresa", 2000);
-        this.pedidosService.ActualizarEstadoImpreso(this.pedido.id, "", moment().format("DD/MM/YY HH:mm"));
+        await firstValueFrom(this.pedidosService.ActualizarEstadoImpreso(this.pedido.id, moment().format("DD/MM/YY HH:mm"), ""));
       }
 
       this.SeguirFlujoDespuesDelPedido();

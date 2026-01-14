@@ -22,7 +22,6 @@ ion-content {
     align-items: center;
     width: 90px;
     height: 80px;
-    background: rgb(87, 255, 115);
     margin: 10px;
     border-radius: 10px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.2);
@@ -30,5 +29,12 @@ ion-content {
 }
 
 .ocupada{
-    background-color: rgb(255, 110, 110);
+    background-color: rgb(255, 87, 87);
 }
+.disponible {
+    background-color: rgb(87, 255, 115);
+}
+.pendiente {
+    background-color: rgb(255, 244, 87);
+}
+
