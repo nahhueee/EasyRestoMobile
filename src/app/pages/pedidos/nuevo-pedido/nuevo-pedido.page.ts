@@ -336,7 +336,7 @@ export class NuevoPedidoPage implements OnInit {
 
     // Buscar si ya existe el producto con ese id y nombre
     const existente = this.detallePedido.find(
-      d => d.idProducto === producto.id && d.producto === nombre
+      d => d.idProducto === producto.id && d.producto === nombre &&  d.quitado === false
     );
 
     if (existente) {
@@ -382,6 +382,12 @@ export class NuevoPedidoPage implements OnInit {
   //#endregion
 
   //#region CATEGORIAS
+  Categoriaschange(){
+    this.productos = [];
+    this.pagina = 1;
+    this.BuscarProductos();
+  }
+
   ObtenerCategorias(){
     this.pedidosService.ObtenerCategorias()
       .subscribe(response => {
@@ -396,6 +402,8 @@ export class NuevoPedidoPage implements OnInit {
 
   CerrarModalCategorias(categoria?:Categoria){
     if(categoria){
+      this.productos = [];
+      this.pagina = 1;
       this.categoriaSeleccionada = categoria;
       this.BuscarProductos();
       this.modalCategorias.dismiss();
@@ -476,7 +484,12 @@ export class NuevoPedidoPage implements OnInit {
   }
 
   QuitarItem(index: number) {
-    this.detallePedido.splice(index, 1);
+    const item = this.detallePedido[index];
+    if(item.id == 0)
+      this.detallePedido.splice(index, 1);
+    else
+      item.quitado = true;
+
     this.RecontarTotales()
   }
 
@@ -564,20 +577,27 @@ export class NuevoPedidoPage implements OnInit {
     .subscribe(async response => {
       if(response!=0){
         this.pedido.id = response;
+        let header = "";
+        let mensaje = "";
 
         if(this.pedidoParametro != 0){
-          this.Notificaciones.success("Pedido modificado correctamente");
-          this.SeguirFlujoDespuesDelPedido();
+          header = "Pedido modificado correctamente";
+          mensaje = "¿Deseas reimprimir la comanda?"
         }else{
-          this.Notificaciones.success("Pedido creado correctamente");
-
-          const alert = await this.alertCtrl.create({
-            header: 'Pedido Guardado Correctamente',
-            message: '¿Deseas imprimir la comanda?',
-            buttons: this.alertButtons
-          });
-          await alert.present();
+          header = "Pedido creado correctamente";
+          mensaje = "¿Deseas imprimir la comanda?"
         }
+
+        this.Notificaciones.success(header);
+
+        const alert = await this.alertCtrl.create({
+          header: header,
+          message: mensaje,
+          buttons: this.alertButtons
+        });
+        
+        await alert.present();
+
       }else{
         this.Notificaciones.warn("Error al guardar pedido");
       }
@@ -613,7 +633,7 @@ export class NuevoPedidoPage implements OnInit {
 
       if(response == 'OK'){
         this.Notificaciones.success("Comanda impresa", 2000);
-        await firstValueFrom(this.pedidosService.ActualizarEstadoImpreso(this.pedido.id, moment().format("DD/MM/YY HH:mm"), ""));
+        await firstValueFrom(this.pedidosService.ActualizarEstadoImpreso(this.pedido.id, "", moment().format("DD/MM/YY HH:mm")));
       }
 
       this.SeguirFlujoDespuesDelPedido();
@@ -621,8 +641,8 @@ export class NuevoPedidoPage implements OnInit {
   }
   
   RecontarTotales() {
-    this.cantItems = this.detallePedido.reduce((acc, d) => acc + d.cantidad!, 0);
-    this.totalItems = this.detallePedido.reduce((acc, d) => acc + d.total!, 0);
+    this.cantItems = this.detallePedido.filter(dt => !dt.quitado).reduce((acc, d) => acc + d.cantidad!, 0);
+    this.totalItems = this.detallePedido.filter(dt => !dt.quitado).reduce((acc, d) => acc + d.total!, 0);
 
     if(this.pedido.pago){
       if(this.pedido.pago.descuento!= null && this.pedido.pago.descuento!= 0){

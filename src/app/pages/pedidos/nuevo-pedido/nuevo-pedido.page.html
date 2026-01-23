@@ -15,7 +15,7 @@
     <ion-content [fullscreen]="true">
       <div class="categorias-principales">
         @for (categoria of primerasCategorias; track $index) {
-          <div class="categoria-item" (click)="categoriaSeleccionada = categoria; BuscarProductos()">
+          <div class="categoria-item" (click)="categoriaSeleccionada = categoria; Categoriaschange()">
             <p>{{categoria.icono}}</p>
             <span>{{ categoria.nombre }}</span>
           </div>
@@ -83,7 +83,7 @@
       <ion-infinite-scroll threshold="100px" (ionInfinite)="CargarDatos($event)" [disabled]="productos.length === 0 || productos.length >= total">
       <ion-infinite-scroll-content
           loadingSpinner="bubbles"
-          loadingText="Cargando más pedidos...">
+          loadingText="Cargando más productos...">
       </ion-infinite-scroll-content>
       </ion-infinite-scroll>
       
@@ -206,7 +206,7 @@
         </div>
 
         @for (item of detallePedido; track item; let i = $index) {
-          <ion-item lines="none">
+          <ion-item lines="none" *ngIf="!item.quitado">
             <div class="detalle-card">
               <div class="datos">
                 <p class="producto"><strong>{{ item.producto }}</strong></p>
