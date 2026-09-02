@@ -1,300 +1,336 @@
-<ion-tabs>
-  <ion-tab tab="variedades">
-    <ion-header [translucent]="true">
-      <ion-toolbar>
-        <ion-buttons slot="start">
-          <ion-button (click)="Volver()">
-            <ion-icon slot="icon-only" name="arrow-back"></ion-icon>
-          </ion-button>
-        </ion-buttons>
-        <ion-title>{{titulo}}</ion-title>
-      </ion-toolbar>
-    </ion-header>
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button (click)="Volver()">
+        <ion-icon slot="icon-only" name="arrow-back"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>
+      {{titulo}}
+      <p class="subtitulo-paso">Paso {{ paso === 'productos' ? '1' : '2' }} de 2 &middot; {{ paso === 'productos' ? 'Productos' : 'Confirmar' }}</p>
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
 
-
-    <ion-content [fullscreen]="true">
-      <div class="categorias-principales">
-        @for (categoria of primerasCategorias; track $index) {
-          <div class="categoria-item" (click)="categoriaSeleccionada = categoria; Categoriaschange()">
-            <p>{{categoria.icono}}</p>
-            <span>{{ categoria.nombre }}</span>
-          </div>
-        }
+<!-- ===================== PASO 1: PRODUCTOS ===================== -->
+@if(paso === 'productos'){
+  <ion-content [fullscreen]="true">
+    <div class="categorias-principales" #filaCategorias>
+      @for (categoria of primerasCategorias; track $index) {
+        <div class="categoria-item" [class.seleccionada]="categoria === categoriaSeleccionada" (click)="SeleccionarCategoria(categoria)">
+          <span class="icono">{{categoria.icono}}</span>
+          <span>{{ categoria.nombre }}</span>
+        </div>
+      }
+      @if(categorias.length > 8){
         <div class="categoria-item ver-mas" (click)="AbrirModalCategorias()">
           <ion-icon name="ellipsis-horizontal-circle"></ion-icon>
           <span>Más</span>
         </div>
-      </div>
-
-      <!-- Resultado Categoria -->
-      @if(categoriaSeleccionada){
-      <div class="aviso">
-        <span>Categoria Seleccionada</span>
-      </div>
-      <div class="recuadro">
-        <p>{{this.categoriaSeleccionada.icono}} {{this.categoriaSeleccionada.nombre}}</p>
-        <ion-icon slot="icon-only" name="close-outline" (click)="categoriaSeleccionada = undefined; BuscarProductos()"></ion-icon>
-      </div>
       }
+    </div>
 
-      <!-- Input busqueda -->
-      <div class="input-busqueda">
-        <ion-input
-          [(ngModel)]="producto"
-          (input)="BuscarProductos()"
-          placeholder="Ingresa un nombre para buscar"
-          label-placement="floating" fill="outline"
-          label="Nombre del Producto"
-          >
-        </ion-input>
-        <ion-button slot="end" fill="clear" [disabled]="producto == ''" (click)="LimpiarBuscar()">
-          <ion-icon name="close-outline"></ion-icon>
-        </ion-button>
-      </div>
+    <!-- Input busqueda -->
+    <div class="input-busqueda">
+      <ion-icon name="search-outline"></ion-icon>
+      <ion-input
+        [(ngModel)]="producto"
+        (ionInput)="BuscarProductos()"
+        placeholder="Buscar producto por nombre"
+        [clearInput]="true"
+        >
+      </ion-input>
+    </div>
 
-      <!-- Lista de resultados -->
-      @if(productos.length > 0){
-        <div class="productos">
-          @for (producto of productos; track $index) {
-            <div class="producto-item" (click)="SeleccionarProducto(producto)">
-              @if(mostrarImg){
-                <img [src]="producto.imagen" alt="imagen">
-              }
-
-              <div class="data">
-                <p>{{producto.nombre}}</p>
-                <span>${{producto.precios![0].precio | decimalFormat}}</span>
+    <!-- Lista de resultados -->
+    @if(productos.length > 0){
+      <div class="productos">
+        @for (producto of productos; track $index) {
+          <div class="producto-item" (click)="SeleccionarProducto(producto)">
+            @if(mostrarImg && producto.imagen && !imagenesFallidas.has(producto.id)){
+              <img [src]="producto.imagen" alt="imagen" (error)="ImagenError(producto.id)">
+            }@else{
+              <div class="avatar-inicial" [style.background]="ColorProducto(producto.id)">
+                <span>{{ InicialProducto(producto.nombre) }}</span>
               </div>
+            }
+
+            @if(CantidadEnCarrito(producto.id); as cant){
+              <span class="badge-cantidad">{{cant}}</span>
+            }
+
+            <div class="data">
+              <p>{{producto.nombre}}</p>
+              <span>${{producto.precios![0].precio | decimalFormat}}</span>
             </div>
-          }
+          </div>
+        }
+      </div>
+    }
+
+    @if(categoriaSeleccionada == undefined && producto == ''){
+      <div class="alerta alerta-info">
+        <ion-icon name="information-circle" class="alerta-icon"></ion-icon>
+        <div class="alerta-texto">
+            Selecciona una categoria o escribe un nombre para buscar
         </div>
-      }
-      
-      @if(categoriaSeleccionada == undefined && producto == ''){
-        <div class="alerta alerta-info">
-          <span class="alerta-icon">ℹ️</span>
-          <div class="alerta-texto">
-              Selecciona una categoria o escribe un nombre para buscar
+      </div>
+    }
+
+    <!-- Scroll Infinito -->
+    <ion-infinite-scroll threshold="100px" (ionInfinite)="CargarDatos($event)" [disabled]="productos.length === 0 || productos.length >= total">
+    <ion-infinite-scroll-content
+        loadingSpinner="bubbles"
+        loadingText="Cargando más productos...">
+    </ion-infinite-scroll-content>
+    </ion-infinite-scroll>
+
+    <!-- Modal Categorias -->
+    <ion-modal #modalCategorias id="modalCategorias">
+      <ng-template>
+        <ion-header>
+
+          <ion-toolbar>
+            <ion-buttons slot="start">
+              <ion-button (click)="CerrarModalCategorias()">
+                <ion-icon slot="icon-only" name="arrow-back"></ion-icon>
+              </ion-button>
+            </ion-buttons>
+            <ion-title>Categorias</ion-title>
+          </ion-toolbar>
+
+        </ion-header>
+        <ion-content class="ion-padding">
+
+          <div class="categorias">
+            @for (categoria of categorias; track $index) {
+              <div class="categoria-item" (click)="CerrarModalCategorias(categoria)">
+                <p>{{categoria.icono}}</p>
+                <span>{{ categoria.nombre }}</span>
+              </div>
+            }
+          </div>
+
+        </ion-content>
+      </ng-template>
+    </ion-modal>
+  </ion-content>
+
+  <!-- Repetir último + Carrito visible: mismo anclaje abajo, aparecen y
+       desaparecen juntos (si hay algo en el carrito, siempre hay un último
+       agregado para repetir). -->
+  @if(cantItems > 0){
+    <ion-footer class="footer-inferior">
+      <ion-toolbar>
+        <div class="barra-inferior">
+          <ion-button class="btn-repetir" fill="solid" color="warning" (click)="RepetirUltimo()">
+            <ion-icon slot="icon-only" name="repeat-outline"></ion-icon>
+          </ion-button>
+          <div class="resumen-carrito" (click)="IrAConfirmar()">
+            <span class="cant">{{cantItems}} {{cantItems == 1 ? 'ítem' : 'ítems'}}</span>
+            <span class="total">${{totalItems | decimalFormat}}</span>
+            <ion-icon name="chevron-forward-outline"></ion-icon>
           </div>
         </div>
-      }
-
-      <!-- Scroll Infinito -->
-      <ion-infinite-scroll threshold="100px" (ionInfinite)="CargarDatos($event)" [disabled]="productos.length === 0 || productos.length >= total">
-      <ion-infinite-scroll-content
-          loadingSpinner="bubbles"
-          loadingText="Cargando más productos...">
-      </ion-infinite-scroll-content>
-      </ion-infinite-scroll>
-      
-
-      <!-- Modal Categorias -->
-      <ion-modal #modalCategorias id="modalCategorias">
-        <ng-template>
-          <ion-header>
-
-            <ion-toolbar>
-              <ion-buttons slot="start">
-                <ion-button (click)="CerrarModalCategorias()">
-                  <ion-icon slot="icon-only" name="arrow-back"></ion-icon>
-                </ion-button>
-              </ion-buttons>
-              <ion-title>Categorias</ion-title>
-            </ion-toolbar>
-
-          </ion-header>
-          <ion-content class="ion-padding">
-            
-            <div class="categorias">
-              @for (categoria of categorias; track $index) {
-                <div class="categoria-item" (click)="CerrarModalCategorias(categoria)">
-                  <p>{{categoria.icono}}</p>
-                  <span>{{ categoria.nombre }}</span>
-                </div>
-              }
-            </div>
-            
-          </ion-content>
-        </ng-template>
-      </ion-modal>
-
-      <!-- Boton Repetir Ultima Variedad -->
-      @if(ultimoAgregado.producto){
-        <ion-fab slot="fixed" vertical="bottom" horizontal="end" class="btnRepetir" (click)="RepetirUltimo()">
-          <ion-fab-button color="warning">
-            <ion-icon name="repeat-outline"></ion-icon>
-          </ion-fab-button>
-        </ion-fab>
-      }
-      
-    </ion-content>
-
-    <!-- Seleccionar Precio Variedad / Guarnicion -->
-    <ion-action-sheet></ion-action-sheet>
-
-  </ion-tab>
-  <ion-tab tab="confirmar">
-    <ion-header [translucent]="true">
-      <ion-toolbar>
-        <ion-buttons slot="start">
-          <ion-button (click)="Volver()">
-            <ion-icon slot="icon-only" name="arrow-back"></ion-icon>
-          </ion-button>
-        </ion-buttons>
-        <ion-title>{{titulo}}</ion-title>
       </ion-toolbar>
-    </ion-header>
+    </ion-footer>
+  }
+}
 
-    <ion-content [fullscreen]="true">
+<!-- ===================== PASO 2: CONFIRMAR ===================== -->
+@if(paso === 'confirmar'){
+  <ion-content [fullscreen]="true">
 
-      <!-- Selector tipo de pedido -->
-      <ion-segment [(ngModel)]="tipoSeleccionado" (ionChange)="SeleccionoTipo($event)">
-        <ion-segment-button 
-          *ngFor="let item of tiposPedido" 
-          [value]="item.id" 
-          [ngClass]="{'opcion-activa': item.id === tipoSeleccionado}">
-          <ion-icon [name]="item.icono"></ion-icon>
-          <ion-label>{{ item.nombre }}</ion-label>
-        </ion-segment-button>
-      </ion-segment>
+    <!-- Selector tipo de pedido -->
+    <ion-segment [(ngModel)]="tipoSeleccionado">
+      <ion-segment-button
+        *ngFor="let item of tiposPedido"
+        [value]="item.id"
+        [ngClass]="{'opcion-activa': item.id === tipoSeleccionado}">
+        <ion-icon [name]="item.icono"></ion-icon>
+        <ion-label>{{ item.nombre }}</ion-label>
+      </ion-segment-button>
+    </ion-segment>
 
-      <!-- Selector Mesa -->
+    <!-- Datos del pedido: Mesa/Cliente + nota del pedido en la misma fila; Lista de Precio con el mismo estilo de caja -->
+    <div class="fila-campo">
       @if(tipoSeleccionado === 1){
-        <ion-select interface="popover" justify="space-between" label="Mesa" [(ngModel)]="mesaSeleccionada">
-          @for(item of mesas; track item.id){
-            <ion-select-option [value]="item.id">{{item.codigo}}</ion-select-option>
+        <div class="campo-selector">
+          <span class="etiqueta-campo">Mesa</span>
+          <ion-select interface="popover" placeholder="Elegir mesa" [(ngModel)]="mesaSeleccionada">
+            @for(item of mesas; track item.id){
+              <ion-select-option [value]="item.id">{{item.codigo}}</ion-select-option>
+            }
+          </ion-select>
+        </div>
+      }@else {
+        <div class="campo-selector">
+          <span class="etiqueta-campo">Nombre del cliente</span>
+          <ion-input placeholder="Ej: Roberto" type="text" [(ngModel)]="cliente"></ion-input>
+        </div>
+      }
+
+      <div class="btn-nota-pedido" [class.con-obs]="pedido.obs && pedido.obs.length > 0" (click)="AbrirModalObs(0, 'pedido')">
+        <ion-icon name="chatbox-ellipses-outline"></ion-icon>
+      </div>
+    </div>
+
+    <div class="fila-campo">
+      <div class="campo-selector">
+        <span class="etiqueta-campo">Lista de Precio</span>
+        <ion-select interface="popover" placeholder="Elegir lista" [(ngModel)]="listaPrecioSeleccionada">
+          @for(item of listasPrecio; track item.id){
+            <ion-select-option [value]="item.id">{{item.nombre}}</ion-select-option>
           }
         </ion-select>
-      }@else {
-        <ion-item>
-          <ion-input label="Cliente" type="text" [(ngModel)]="cliente"></ion-input>
-        </ion-item>
-      }
+      </div>
+    </div>
 
-      <!-- Selector de Lista de Precio -->
-      <ion-select interface="popover" justify="space-between" label="Lista de Precio" [(ngModel)]="listaPrecioSeleccionada">
-        @for(item of listasPrecio; track item.id){
-          <ion-select-option [value]="item.id">{{item.nombre}}</ion-select-option>
-        }
-      </ion-select>
 
-      @if(pedido.obs && pedido.obs.length > 0){
-        <div class="advertencia">
-          Pedido Observado
-        </div>
-      }
-      <ion-button class="btnObservar" expand="block" color="primary" (click)="AbrirModalObs(0, 'pedido')">
-        <ion-icon name="chatbox-ellipses-outline" slot="start"></ion-icon>
-        Observar Pedido
-      </ion-button>
-      
+    <!-- Lista de Detalle Pedido -->
+    <div class="aviso">
+      <span>Productos del Pedido</span>
+    </div>
 
-      <!-- Lista de Detalle Pedido -->
-      <ion-list>
-        <div class="aviso">
-          <span>Lista de Variedades del Pedido</span>
-        </div>
-
-        <div class="footer">
-          <div class="totales">
-            <p><strong>Cant: </strong>{{cantItems}}</p>
-            <p><strong>Total: ${{totalItems | decimalFormat}}</strong></p>
-          </div>
-          <div *ngIf="cantItems > 0">
-            <p class="advertencia">{{advertencia}}</p>
-          </div>
-        </div>
-
-        @for (item of detallePedido; track item; let i = $index) {
-          <ion-item lines="none" *ngIf="!item.quitado">
-            <div class="detalle-card">
+    <ion-list>
+      @for (item of detallePedido; track item; let i = $index) {
+        <ion-item lines="none" *ngIf="!item.quitado">
+          <div class="detalle-card">
+            <div class="fila-top">
               <div class="datos">
                 <p class="producto"><strong>{{ item.producto }}</strong></p>
-                <p>Cant: {{ item.cantidad }} | Unit: ${{ item.unitario | number:'1.2-2' }}</p>
-                <p>Total: <strong>${{ item.total | number:'1.2-2' }}</strong></p>
+                <p class="unitario">${{ item.unitario | number:'1.2-2' }} c/u</p>
+                @if(item.obs && item.obs.length > 0){
+                  <p class="obs-item">✎ {{ item.obs }}</p>
+                }
+              </div>
+              <p class="total">${{ item.total | number:'1.2-2' }}</p>
+            </div>
+
+            <div class="fila-bottom">
+              <div class="stepper">
+                <ion-button fill="clear" size="small" (click)="Decrementar(i)">
+                  <ion-icon slot="icon-only" name="remove-outline"></ion-icon>
+                </ion-button>
+                <span class="cantidad">{{ item.cantidad }}</span>
+                <ion-button fill="clear" size="small" (click)="Incrementar(i)">
+                  <ion-icon slot="icon-only" name="add-outline"></ion-icon>
+                </ion-button>
               </div>
 
-              @if(item.obs && item.obs.length > 0){
-                <div class="advertencia">
-                  Observado
-                </div>
-              }
-             
-
-              <div class="botones">
-                <ion-button expand="block" color="warning" (click)="AbrirModalObs($index, 'producto')">
-                  <ion-icon name="chatbox-ellipses-outline" slot="start"></ion-icon>
-                  Observación
-                </ion-button>
-
-                <ion-button expand="block" color="danger" (click)="QuitarItem(i)">
-                  <ion-icon name="trash-outline" slot="start"></ion-icon>
-                  Quitar
-                </ion-button>
+              <div class="btn-nota-item" (click)="AbrirModalObs($index, 'producto')">
+                <ion-icon name="chatbox-ellipses-outline"></ion-icon>
               </div>
             </div>
-          </ion-item>
+          </div>
+        </ion-item>
+      }
+    </ion-list>
+
+    <!-- Modal Observaciones -->
+    <ion-modal #modalObs id="modalObs" (didPresent)="FocusInput()">
+      <ng-template>
+        <ion-header>
+          <ion-toolbar>
+            <ion-buttons slot="start">
+              <ion-button (click)="CerrarModalObs()">
+                <ion-icon slot="icon-only" name="arrow-back"></ion-icon>
+              </ion-button>
+            </ion-buttons>
+            <!-- Antes decia siempre "Categorias" -copiado del modal de categorias
+                 sin cambiar el titulo. Ahora es dinamico segun que se esta observando. -->
+            <ion-title>{{ modalAbierto === 'pedido' ? 'Observar pedido' : 'Observar producto' }}</ion-title>
+          </ion-toolbar>
+        </ion-header>
+        <ion-content class="observacion">
+          @if(modalAbierto === 'producto'){
+            <p class="obs-target">{{productoSeleccionado}}</p>
+          }
+
+          <span class="etiqueta-campo">Observación</span>
+          <ion-textarea
+            #obsInput
+            placeholder="Escribí una observación..."
+            [autoGrow]="true"
+            rows="4"
+            [(ngModel)]="observacion"></ion-textarea>
+
+          <ion-button expand="block" color="primary" (click)="ConfimarObs()">
+            <ion-icon name="checkmark-outline" slot="start"></ion-icon>
+            Confirmar
+          </ion-button>
+        </ion-content>
+      </ng-template>
+    </ion-modal>
+
+  </ion-content>
+
+  <!-- Resumen + Guardar -->
+  <ion-footer class="footer-guardar">
+    <ion-toolbar>
+      <div class="resumen-guardar">
+        <div class="fila-resumen">
+          <span class="cant">{{cantItems}} {{cantItems == 1 ? 'producto' : 'productos'}}</span>
+          <span class="total">${{totalItems | decimalFormat}}</span>
+        </div>
+        @if(advertencia && cantItems > 0){
+          <p class="advertencia">{{advertencia}}</p>
         }
-      </ion-list>
-
-      <!-- Modal Observaciones -->
-      <ion-modal #modalObs id="modalObs" (didPresent)="FocusInput()">
-        <ng-template>
-          <ion-header>
-
-            <ion-toolbar>
-              <ion-buttons slot="start">
-                <ion-button (click)="CerrarModalObs()">
-                  <ion-icon slot="icon-only" name="arrow-back"></ion-icon>
-                </ion-button>
-              </ion-buttons>
-              <ion-title>Categorias</ion-title>
-            </ion-toolbar>
-
-          </ion-header>
-          <ion-content class="observacion">
-            <p>Agrega una observación para este {{modalAbierto}}</p>
-            <strong>{{productoSeleccionado}}</strong>
-
-            <ion-textarea 
-              label="Observación" 
-              label-placement="floating" 
-              fill="outline" 
-              #obsInput
-              [(ngModel)]="observacion"></ion-textarea>
-
-            <ion-button expand="block" color="primary" (click)="ConfimarObs()">
-              <ion-icon name="checkmark-outline"></ion-icon>
-              Confirmar
-            </ion-button>
-            
-          </ion-content>
-        </ng-template>
-      </ion-modal>
-
-    </ion-content>
-
-    <!-- Boton Guardar -->
-    <ion-footer class="footer-guardar">
-      <ion-toolbar>
         <ion-button expand="block" color="success" (click)="GuardarPedido()">
           <ion-icon name="save-outline" slot="start"></ion-icon>
           Guardar Pedido
         </ion-button>
-      </ion-toolbar>
-    </ion-footer>
-  </ion-tab>
-  
-  <ion-tab-bar slot="bottom">
-    <ion-tab-button tab="variedades">
-      <ion-icon name="fast-food-outline"></ion-icon>
-      Variedades
-    </ion-tab-button>
-    <ion-tab-button tab="confirmar">
-      <ion-icon name="checkbox-outline"></ion-icon>
-      Confirmar
-    </ion-tab-button>
-  </ion-tab-bar>
-</ion-tabs>
+      </div>
+    </ion-toolbar>
+  </ion-footer>
+}
 
+<!-- ===================== PASO 3: GUARDADO ===================== -->
+@if(paso === 'guardado'){
+  <!-- El flex/centrado va en un div propio adentro de ion-content, no en el
+       host: ion-content maneja su layout interno (scroll) por shadow DOM y
+       no respeta display:flex puesto directo sobre el -por eso antes
+       quedaba todo pegado a la izquierda. -->
+  <ion-content [fullscreen]="true">
+    <div class="pantalla-guardado">
+      <div class="icono-exito">
+        <ion-icon name="checkmark-outline"></ion-icon>
+      </div>
+      <p class="titulo-guardado">Pedido guardado</p>
+      @if(ResumenTitulo()){
+        <p class="subtitulo-guardado">{{ ResumenTitulo() }}</p>
+      }
 
+      <div class="tarjeta-resumen-guardado">
+        <div class="dato">
+          <p class="valor">{{cantItems}}</p>
+          <p class="etiqueta">Productos</p>
+        </div>
+        <div class="divisor"></div>
+        <div class="dato">
+          <p class="valor">${{totalItems | decimalFormat}}</p>
+          <p class="etiqueta">Total</p>
+        </div>
+      </div>
+
+      <ion-button expand="block" fill="outline" color="primary" (click)="ImprimirComanda()">
+        <ion-icon name="document-outline" slot="start"></ion-icon>
+        Imprimir comanda
+      </ion-button>
+
+      @if(permitirImpComprobante){
+        <ion-button expand="block" color="primary" (click)="ImprimirComprobante()">
+          <ion-icon name="receipt-outline" slot="start"></ion-icon>
+          Imprimir comprobante
+        </ion-button>
+      }
+
+      <ion-button class="btn-volver" expand="block" fill="clear" color="medium" (click)="SeguirFlujoDespuesDelPedido()">
+        Volver
+      </ion-button>
+    </div>
+  </ion-content>
+}
+
+<!-- Seleccionar Precio Variedad / Guarnicion -->
+<ion-action-sheet></ion-action-sheet>

@@ -27,6 +27,7 @@ import { UsuariosService } from 'src/app/services/usuarios.service';
 import { FilesService } from 'src/app/services/files.service';
 import moment from 'moment';
 import { ParametrosService } from 'src/app/services/parametros.service';
+import { EstadoVacioComponent } from 'src/app/components/estado-vacio/estado-vacio.component';
 
 @Component({
   selector: 'app-pedidos',
@@ -49,7 +50,8 @@ import { ParametrosService } from 'src/app/services/parametros.service';
     IonItem,
     IonInfiniteScroll,
     IonInfiniteScrollContent,
-    DecimalFormatPipe
+    DecimalFormatPipe,
+    EstadoVacioComponent
   ]
 })
 export class PedidosPage implements OnInit {

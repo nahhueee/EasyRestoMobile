@@ -30,6 +30,13 @@
     </ion-refresher>
 
     <!-- Lista de Pedidos -->
+    @if (pedidos.length == 0) {
+      <app-estado-vacio
+        icono="document-text-outline"
+        [titulo]="finalizados ? 'Sin pedidos finalizados' : 'Sin pedidos pendientes'"
+        [subtitulo]="finalizados ? 'Todavía no hay pedidos finalizados para mostrar.' : 'Cuando cargues un pedido nuevo, va a aparecer acá.'">
+      </app-estado-vacio>
+    }@else {
     <ion-list>
         @for (item of pedidos; track item; let index = $index) {
         <ion-item>
@@ -40,21 +47,24 @@
                     <p><strong>Total: </strong>${{item.total | decimalFormat}}</p>
                 </div>
                
-                @if(permitirImpComprobante){
-                  <ion-button size="large" (click)="AbrirAcciones(item); $event.stopPropagation()">
-                    <ion-icon slot="icon-only" ios="print-outline" md="print-outline"></ion-icon>
-                  </ion-button>
-                }@else {
-                  <ion-button size="large" (click)="ImprimirComanda(item); $event.stopPropagation()">
-                    <ion-icon slot="icon-only" ios="print-outline" md="print-outline"></ion-icon>
-                  </ion-button>
-                }
+                <div class="acciones">
+                  @if(permitirImpComprobante){
+                    <ion-button size="large" (click)="AbrirAcciones(item); $event.stopPropagation()">
+                      <ion-icon slot="icon-only" ios="print-outline" md="print-outline"></ion-icon>
+                    </ion-button>
+                  }@else {
+                    <ion-button size="large" (click)="ImprimirComanda(item); $event.stopPropagation()">
+                      <ion-icon slot="icon-only" ios="print-outline" md="print-outline"></ion-icon>
+                    </ion-button>
+                  }
+                </div>
                 
             </div>
             
         </ion-item>
         }
     </ion-list>
+    }
 
     <!-- Scroll Infinito -->
     <ion-infinite-scroll threshold="100px" (ionInfinite)="CargarDatos($event)">
@@ -67,7 +77,7 @@
 
 <!-- Boton Nuevo Pedido -->
 <ion-fab slot="fixed" vertical="bottom" horizontal="end" class="btnNuevo" (click)="NuevoPedido()">
-  <ion-fab-button color="success">
+  <ion-fab-button color="primary">
     <ion-icon name="add"></ion-icon>
   </ion-fab-button>
 </ion-fab>

@@ -8,6 +8,34 @@
 
 }
 
+.seccion-titulo{
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--ion-color-medium);
+  margin-top: 18px !important;
+}
+
+.selector-tema{
+  display: flex;
+  gap: 14px;
+  padding: 4px 16px 4px;
+  margin-bottom: 15px;
+}
+
+.tema-circulo{
+  width: 38px;
+  height: 38px;
+  border-radius: 19px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+  border: 3px solid transparent;
+}
+
+.tema-circulo.seleccionado{
+  border-color: var(--ion-color-medium);
+}
+
 .checkbox-container{
   padding: 10px 16px !important;
   background-color: var(--ion-color-light);
@@ -16,6 +44,9 @@
 ion-checkbox {
   width: 100%;
   align-items: flex-start;
+}
+ion-toggle {
+  width: 100%;
 }
 ion-checkbox::part(label) {
   white-space: normal !important;
@@ -27,12 +58,10 @@ ion-checkbox::part(label) {
 .imagen{
     display:flex;
     justify-content: center;
-    
+
     img{
         width: 150px;
         height: 150px;
         margin: 15px 0px;
     }
 }
-
-

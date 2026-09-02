@@ -1,10 +1,9 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NavController } from '@ionic/angular';
 import { DecimalFormatPipe } from '../../../pipes/decimal.pipe';
 import { 
-  AlertController,
   IonContent, 
   IonHeader, 
   IonTitle, 
@@ -24,7 +23,7 @@ import {
   LoadingController,
   IonTextarea,
   IonLabel, 
-  IonTab, IonTabs, IonTabBar, IonTabButton, IonList, IonFab, IonFabButton, IonInfiniteScroll, IonInfiniteScrollContent, IonAlert } from '@ionic/angular/standalone';
+  IonList, IonInfiniteScroll, IonInfiniteScrollContent } from '@ionic/angular/standalone';
 import { PedidosService } from 'src/app/services/pedidos.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Categoria } from 'src/app/models/Categoria';
@@ -49,12 +48,17 @@ import moment from 'moment';
 import { FilesService } from 'src/app/services/files.service';
 import { firstValueFrom } from 'rxjs';
 
+// Paleta para el avatar de iniciales cuando el producto no tiene imagen
+// (o mostrarImg esta desactivado). Colores fijos e independientes del tema
+// -son para diferenciar productos entre si, no para status/semantica.
+const PALETA_AVATAR = ['#ef4444', '#f97316', '#f59e0b', '#84cc16', '#10b981', '#0ea5e9', '#6366f1', '#a855f7'];
+
 @Component({
   selector: 'app-nuevo-pedido',
   templateUrl: './nuevo-pedido.page.html',
   styleUrls: ['./nuevo-pedido.page.scss'],
   standalone: true,
-  imports: [IonInfiniteScrollContent, IonInfiniteScroll, IonFabButton, IonFab, IonList, IonTabButton, IonTabBar, IonTabs, IonTab, IonFooter, IonTextarea,
+  imports: [IonInfiniteScrollContent, IonInfiniteScroll, IonList, IonFooter, IonTextarea,
     IonInput, 
     IonItem, 
     IonModal, 
@@ -83,6 +87,9 @@ export class NuevoPedidoPage implements OnInit {
   pedidoParametro: number = 0;
   titulo:string = "Nuevo Pedido";
   mostrarImg:boolean = false;
+  // Gatea el boton "Imprimir comprobante" en la pantalla de Guardado -misma
+  // condicion que ya usa la lista de Pedidos (pedidos.page.ts).
+  permitirImpComprobante:boolean = false;
   idCaja:number = 0;
 
   //#region ELEGIR VARIEDADES
@@ -100,8 +107,16 @@ export class NuevoPedidoPage implements OnInit {
   pagina:number = 1;
   total:number = 0;
 
+  @ViewChild('filaCategorias') filaCategorias!: ElementRef<HTMLDivElement>;
   @ViewChild('modalCategorias', { static: false }) modalCategorias!: IonModal;
   @ViewChild('obsInput') obsInput!: IonTextarea;
+
+  // Flujo lineal (ex ion-tabs): un solo paso visible a la vez.
+  paso: 'productos' | 'confirmar' | 'guardado' = 'productos';
+
+  // Productos cuya imagen fallo al cargar (404, url invalida, etc.) -se
+  // les muestra el mismo avatar-inicial que a los que no tienen imagen.
+  imagenesFallidas = new Set<number>();
   //#endregion
 
   //#region CONFIRMAR PEDIDO
@@ -127,22 +142,6 @@ export class NuevoPedidoPage implements OnInit {
   @ViewChild('modalObs', { static: false }) modalObs!: IonModal;
 
   pedido:Pedido = new Pedido();
-  alertButtons = [
-    {
-      text: 'No, cerrar',
-      role: 'cancel',
-      handler: () => {
-        this.SeguirFlujoDespuesDelPedido();
-      },
-    },
-    {
-      text: 'Si, imprimir',
-      role: 'confirm',
-      handler: () => {
-        this.ImprimirComanda();
-      },
-    },
-  ];
 
   //#endregion
 
@@ -159,7 +158,6 @@ export class NuevoPedidoPage implements OnInit {
     private usuariosService:UsuariosService,
     private loadingCtrl: LoadingController,
     private parametrosService:ParametrosService,
-    private alertCtrl: AlertController,
     private filesService: FilesService
   ) { 
     
@@ -175,6 +173,7 @@ export class NuevoPedidoPage implements OnInit {
     }
 
     this.mostrarImg  = this.parametrosService.ObtenerParametrosLocal().imagenes!;
+    this.permitirImpComprobante = this.parametrosService.ObtenerParametrosLocal().impComprobante!;
   }
 
   ngOnInit() {
@@ -217,6 +216,15 @@ export class NuevoPedidoPage implements OnInit {
       this.productos = [];
       return;
     } 
+
+    // "event" solo llega desde el scroll infinito (CargarDatos). Si no hay
+    // event, es un cambio de filtro (tipear, borrar, limpiar con la "x" del
+    // input) -volvemos siempre a la pagina 1, sino se sigue pidiendo la
+    // pagina vieja (ej: si veniamos paginados por scroll) y da resultados
+    // incompletos o vacios en vez de todos los productos que corresponden.
+    if(!event){
+      this.pagina = 1;
+    }
 
     const filtro = new FiltroProducto();
     filtro.pagina = this.pagina,
@@ -379,6 +387,40 @@ export class NuevoPedidoPage implements OnInit {
     this.RecontarTotales();
     this.Notificaciones.success("Producto agregado", 1500);
   }
+
+  // Cuanto de este producto ya esta cargado en el pedido (suma variantes/
+  // adicionales, que comparten idProducto), para mostrarlo en la grilla sin
+  // tener que ir a "Confirmar".
+  CantidadEnCarrito(idProducto:number):number{
+    return this.detallePedido
+      .filter(d => d.idProducto === idProducto && !d.quitado)
+      .reduce((acc, d) => acc + (d.cantidad || 0), 0);
+  }
+
+  // Carrito visible: la barra fija del paso "Productos" lleva a "Confirmar".
+  IrAConfirmar(){
+    this.paso = 'confirmar';
+  }
+
+  IrAProductos(){
+    this.paso = 'productos';
+  }
+
+  // Avatar de iniciales para productos sin imagen (ver PALETA_AVATAR arriba).
+  ColorProducto(idProducto:number):string{
+    return PALETA_AVATAR[idProducto % PALETA_AVATAR.length];
+  }
+
+  InicialProducto(nombre:string):string{
+    return nombre ? nombre.trim().charAt(0).toUpperCase() : '?';
+  }
+
+  // La imagen existe (producto.imagen tiene url) pero fallo la carga en
+  // runtime (404, ip vieja, sin conexion, etc.). Se marca el producto para
+  // que el template caiga al avatar-inicial en vez del icono roto del navegador.
+  ImagenError(idProducto:number){
+    this.imagenesFallidas.add(idProducto);
+  }
   //#endregion
 
   //#region CATEGORIAS
@@ -388,11 +430,19 @@ export class NuevoPedidoPage implements OnInit {
     this.BuscarProductos();
   }
 
+  // Tocar la categoria ya seleccionada la deselecciona (como en el mockup).
+  SeleccionarCategoria(categoria: Categoria){
+    this.categoriaSeleccionada = (this.categoriaSeleccionada === categoria) ? undefined : categoria;
+    this.Categoriaschange();
+  }
+
   ObtenerCategorias(){
     this.pedidosService.ObtenerCategorias()
       .subscribe(response => {
         this.categorias = response;
-        this.primerasCategorias = this.categorias.slice(0, 2);
+        // Hasta 8 categorias en la fila con scroll; si hay mas, el resto
+        // queda atras del boton "+" que abre el modal completo.
+        this.primerasCategorias = this.categorias.slice(0, 8);
       });
   }
 
@@ -405,8 +455,14 @@ export class NuevoPedidoPage implements OnInit {
       this.productos = [];
       this.pagina = 1;
       this.categoriaSeleccionada = categoria;
+
+      if(!this.primerasCategorias.includes(categoria)){
+        this.primerasCategorias = [categoria, ...this.primerasCategorias.slice(0, 7)];
+      }
+
       this.BuscarProductos();
       this.modalCategorias.dismiss();
+      this.filaCategorias?.nativeElement.scrollTo({ left: 0, behavior: 'smooth' });
     }else{
       this.modalCategorias.dismiss();
     }
@@ -447,17 +503,19 @@ export class NuevoPedidoPage implements OnInit {
           return { ...item, icono };
         });
 
-        this.tipoSeleccionado = this.tiposPedido[0]?.id!;
+        // Si se vino de tocar una mesa puntual (mesaParametro != 0), el tipo
+        // es RESTAURANTE si o si -no tiene sentido pisarlo con el ultimo
+        // usado. Si no, se recuerda el ultimo tipo cargado (localStorage,
+        // seteado en GuardarPedido) y se cae al primero de la lista si
+        // todavia no se guardo ninguno.
+        if(this.mesaParametro != 0){
+          this.tipoSeleccionado = this.tiposPedido.find(t => t.id === 1)?.id ?? this.tiposPedido[0]?.id!;
+        }else{
+          const ultimoTipo = Number(localStorage.getItem('ultimoTipoPedido'));
+          const existeUltimoTipo = this.tiposPedido.some(t => t.id === ultimoTipo);
+          this.tipoSeleccionado = existeUltimoTipo ? ultimoTipo : this.tiposPedido[0]?.id!;
+        }
       });
-  }
-
-  SeleccionoTipo(event: any){
-    const seleccionado = event.detail.value;
-    if(seleccionado == 1){
-      this.listaPrecioSeleccionada = this.listasPrecio[0].id!;
-    }else{
-      this.listaPrecioSeleccionada = this.listasPrecio[1].id!;
-    }
   }
 
   ObtenerMesas(){
@@ -479,7 +537,13 @@ export class NuevoPedidoPage implements OnInit {
     this.pedidosService.SelectorListas()
       .subscribe(response => {
         this.listasPrecio = response;
-        this.listaPrecioSeleccionada = this.listasPrecio[0].id!;
+        // Mismo criterio que EasyRestoApp (det-pedidos.component.ts, pedido
+        // de Nahu 2026-07-21): siempre RESTAURANTE (id 1) sin importar el
+        // tipo de pedido -antes Retira/Delivery autoseleccionaban PARA
+        // LLEVAR (id 2). El selector manual de lista de precio sigue
+        // disponible por si hace falta overridear en un caso puntual, y
+        // cambiar el tipo de pedido ya no lo pisa (ver SeleccionoTipo, se saco).
+        this.listaPrecioSeleccionada = 1;
       });
   }
 
@@ -491,6 +555,26 @@ export class NuevoPedidoPage implements OnInit {
       item.quitado = true;
 
     this.RecontarTotales()
+  }
+
+  Incrementar(index:number){
+    const item = this.detallePedido[index];
+    item.cantidad = (item.cantidad || 0) + 1;
+    item.total = item.unitario! * item.cantidad;
+    this.RecontarTotales();
+  }
+
+  Decrementar(index:number){
+    const item = this.detallePedido[index];
+    // A 0 seguimos el mismo camino que QuitarItem (splice si es nuevo,
+    // quitado=true si es de un pedido ya guardado) -no duplicamos esa logica.
+    if((item.cantidad || 0) <= 1){
+      this.QuitarItem(index);
+      return;
+    }
+    item.cantidad = item.cantidad! - 1;
+    item.total = item.unitario! * item.cantidad;
+    this.RecontarTotales();
   }
 
   AbrirModalObs(item:number, modal:string){
@@ -554,10 +638,18 @@ export class NuevoPedidoPage implements OnInit {
     if(this.idCaja > 0)
       this.pedido.idCaja = this.idCaja;
      
-    if(this.mesaSeleccionada==0){this.mesaSeleccionada = this.mesas[0].id!}
-    var mesa = new Mesa();
-    mesa = this.mesas.find(m => m.id == this.mesaSeleccionada)!;
-    this.pedido.mesa = mesa;
+    // Antes esto corria siempre, sin importar el tipo de pedido: en
+    // Retira/Delivery "this.mesas" puede estar vacio (0 mesas libres, o el
+    // usuario no tiene mesas asignadas) y mesas[0] rompia con "Cannot read
+    // properties of undefined". Ademas, aun sin explotar, le pegaba una mesa
+    // cualquiera a pedidos que no la necesitan. Mesa.mesa es opcional en el
+    // modelo -para Retira/Delivery directamente no se toca.
+    if(this.tipoSeleccionado === 1){
+      if(this.mesaSeleccionada==0){this.mesaSeleccionada = this.mesas[0]?.id!}
+      var mesa = new Mesa();
+      mesa = this.mesas.find(m => m.id == this.mesaSeleccionada)!;
+      this.pedido.mesa = mesa;
+    }
     this.pedido.responsable = new Usuario({id:this.idResponsable, nombre:this.nombreResponsable});
     
     var tipoPedido = new TipoPedido();
@@ -577,27 +669,15 @@ export class NuevoPedidoPage implements OnInit {
     .subscribe(async response => {
       if(response!=0){
         this.pedido.id = response;
-        let header = "";
-        let mensaje = "";
+        // Antes: alert nativo "Si, imprimir/No, cerrar" que sacaba de la
+        // pantalla al toque. Ahora es su propio paso -se ve el resumen y se
+        // puede imprimir comanda y/o comprobante sin que la primera accion
+        // te expulse; "Volver" (SeguirFlujoDespuesDelPedido) es explicito.
+        this.paso = 'guardado';
 
-        if(this.pedidoParametro != 0){
-          header = "Pedido modificado correctamente";
-          mensaje = "¿Deseas reimprimir la comanda?"
-        }else{
-          header = "Pedido creado correctamente";
-          mensaje = "¿Deseas imprimir la comanda?"
-        }
-
-        this.Notificaciones.success(header);
-
-        const alert = await this.alertCtrl.create({
-          header: header,
-          message: mensaje,
-          buttons: this.alertButtons
-        });
-        
-        await alert.present();
-
+        // Se recuerda para autoseleccionar este tipo la proxima vez que se
+        // cargue un pedido sin venir de una mesa puntual (ver ObtenerTiposPedido).
+        localStorage.setItem('ultimoTipoPedido', String(this.tipoSeleccionado));
       }else{
         this.Notificaciones.warn("Error al guardar pedido");
       }
@@ -617,27 +697,38 @@ export class NuevoPedidoPage implements OnInit {
   }
 
   ImprimirComanda() {
-    // this.filesService.VerComanda(this.pedido).subscribe(response => {
-    //   const blob = new Blob([response], { type: 'application/pdf' });
-    //   const url = window.URL.createObjectURL(blob);
-    //   const a = document.createElement('a');
-    //   a.href = url;
-    //   a.download = 'Comanda.pdf';
-    //   a.click();
-    //   window.URL.revokeObjectURL(url);
-    //   this.SeguirFlujoDespuesDelPedido();
-
-    // });
     this.filesService.ImprimirPDF('comanda', this.pedido, '')
     .subscribe(async response => {
-
       if(response == 'OK'){
         this.Notificaciones.success("Comanda impresa", 2000);
         await firstValueFrom(this.pedidosService.ActualizarEstadoImpreso(this.pedido.id, "", moment().format("DD/MM/YY HH:mm")));
       }
-
-      this.SeguirFlujoDespuesDelPedido();
     });
+  }
+
+  // Calcado de ImprimirComprobante en pedidos.page.ts (misma lista de
+  // pedidos), gateado por permitirImpComprobante en la pantalla de Guardado.
+  ImprimirComprobante() {
+    this.filesService.ImprimirPDF('comprobante', this.pedido, 'interno')
+    .subscribe(async response => {
+      if(response == 'OK'){
+        this.Notificaciones.success("Comprobante impreso", 2000);
+        const ticketImp = moment().format("DD/MM/YY HH:mm");
+        await firstValueFrom(this.pedidosService.ActualizarEstadoImpreso(this.pedido.id, ticketImp, ""));
+      }
+    });
+  }
+
+  // Texto de destino en la pantalla de Guardado: "Mesa 5" o "Retira · Juan" /
+  // "Delivery · Juan" segun el tipo de pedido elegido en Confirmar.
+  ResumenTitulo(): string {
+    if(this.tipoSeleccionado === 1){
+      const mesa = this.mesas.find(m => m.id === this.mesaSeleccionada);
+      return mesa ? ('Mesa ' + mesa.codigo) : '';
+    }
+    const tipo = this.tiposPedido.find(t => t.id === this.tipoSeleccionado);
+    const nombreTipo = tipo?.nombre || '';
+    return this.cliente ? (nombreTipo + ' · ' + this.cliente) : nombreTipo;
   }
   
   RecontarTotales() {
@@ -658,6 +749,10 @@ export class NuevoPedidoPage implements OnInit {
   //#endregion
 
   Volver() {
-    this.navCtrl.back(); 
+    if(this.paso === 'confirmar'){
+      this.IrAProductos();
+    }else{
+      this.navCtrl.back();
+    }
   }
 }

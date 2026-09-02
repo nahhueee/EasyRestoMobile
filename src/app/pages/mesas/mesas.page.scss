@@ -1,18 +1,45 @@
+// --padding-top NO se fuerza a 0: con [fullscreen]="true"] Ionic calcula
+// solo cuanto padding-top hace falta para no quedar tapado por el
+// ion-header (mide su altura real). Forzarlo a 0 hacia que el contenido
+// arrancara detras del header y recien se viera al hacer scroll/refresh.
 ion-content {
   --padding-bottom: 0;
-  --padding-top: 0;
 }
 
-.alerta{
-  margin-top: 80px;
+
+.leyenda-estados {
+  display: flex;
+  justify-content: center;
+  gap: 18px;
+  padding: 10px 12px 0;
+  flex-wrap: wrap;
 }
+
+.leyenda-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--ion-color-medium);
+}
+
+.punto {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.punto.disponible { background-color: var(--success-solid); }
+.punto.ocupada { background-color: var(--danger-solid); }
+.punto.pendiente { background-color: var(--warning-solid); }
 
 .grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 5px;
   padding: 10px;
-  margin: 50px 0;
+  margin: 12px 0;
   justify-items: center;
 }
 
@@ -25,16 +52,18 @@ ion-content {
     margin: 10px;
     border-radius: 10px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    color: #272727;
+    color: #ffffff;
 }
 
+// -solid: fondo fijo (no invierte en modo oscuro), texto blanco encima
+// -mismos tokens que usan los toasts, ver theme/variables.scss.
 .ocupada{
-    background-color: rgb(255, 87, 87);
+    background-color: var(--danger-solid);
 }
 .disponible {
-    background-color: rgb(87, 255, 115);
+    background-color: var(--success-solid);
 }
 .pendiente {
-    background-color: rgb(255, 244, 87);
+    background-color: var(--warning-solid);
 }
 

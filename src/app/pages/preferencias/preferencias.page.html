@@ -5,7 +5,7 @@
         <ion-icon slot="icon-only" name="arrow-back"></ion-icon>
       </ion-button>
     </ion-buttons>
-    <ion-title>Configurar Servidor</ion-title>
+    <ion-title>Preferencias</ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -14,25 +14,54 @@
       <img src="assets/preference.png" alt="Preferencia"/>
     </div>
 
+    <p class="seccion-titulo">Apariencia</p>
+
+    <div class="selector-tema">
+      <div
+        *ngFor="let tema of temas"
+        class="tema-circulo"
+        [class.seleccionado]="tema.id === temaSeleccionado"
+        [style.background]="tema.hex"
+        (click)="SeleccionarTema(tema.id)">
+      </div>
+    </div>
+
     <div class="checkbox-container">
-      <ion-checkbox 
-        labelPlacement="start" 
+      <ion-toggle
+        labelPlacement="start"
+        justify="space-between"
+        [(ngModel)]="modoOscuro"
+        (ionChange)="CambiarModoOscuro()">
+        Modo oscuro
+      </ion-toggle>
+    </div>
+
+    <!-- Pedidos (mostrarImg / todasLasMesas): oculto a pedido de Nahu.
+         Estos valores los define el servidor (parametros_mobile), no son
+         una preferencia del usuario -de hecho ya estaban desconectados:
+         estos checks pisaban localStorage('mostrarImg'/'todasLasMesas'),
+         pero mesas.page.ts y nuevo-pedido.page.ts leen imagenes/todasMesas
+         desde ObtenerParametrosLocal() (cache de parametros_mobile), asi
+         que tocar estos checks no cambiaba nada en la app igual. -->
+    <!-- <p class="seccion-titulo">Pedidos</p>
+
+    <div class="checkbox-container">
+      <ion-checkbox
+        labelPlacement="start"
         [(ngModel)]="mostrarImg">
         Mostrar imágenes en la selección de productos
       </ion-checkbox>
     </div>
     <div class="checkbox-container">
-      <ion-checkbox 
-        labelPlacement="start" 
+      <ion-checkbox
+        labelPlacement="start"
         [(ngModel)]="todasLasMesas">
         Mostrar todas las mesas en el selector de mesas
       </ion-checkbox>
-    </div>
+    </div> -->
 
     <ion-button expand="block" color="primary" (click)="Confirmar()">
       <ion-icon name="checkmark-outline"></ion-icon>
       Guardar Preferencias
     </ion-button>
 </ion-content>
-
-

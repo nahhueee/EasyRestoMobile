@@ -30,4 +30,12 @@ export class ParametrosService {
   ObtenerUltimaCajaActiva():Observable<any> {
     return this.http.get(`${this.apiUrl}/cajas/obtener-ultima-activa`)
   }
+
+  // parametros_mobile es una sola fila: el backend reescribe el registro
+  // completo, por eso ThemeService siempre manda el Parametro entero
+  // (leído antes con ObtenerParametrosMobile) con solo tema/modoOscuro
+  // cambiados, no un patch parcial.
+  ActualizarParametrosMobile(data:any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/parametros/actualizar-mobile`, data)
+  }
 }

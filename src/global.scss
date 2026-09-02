@@ -33,61 +33,69 @@
  */
 
 /* @import "@ionic/angular/css/palettes/dark.always.css"; */
-/* @import "@ionic/angular/css/palettes/dark.class.css"; */
-@import '@ionic/angular/css/palettes/dark.system.css';
+// Modo oscuro a mano (ThemeService agrega/saca 'ion-palette-dark' en <html>),
+// NO por preferencia del sistema operativo del teléfono -por eso dark.class.css
+// y no dark.system.css. Ver theme/variables.scss para el resto de la explicación.
+@import "@ionic/angular/css/palettes/dark.class.css";
+/* @import '@ionic/angular/css/palettes/dark.system.css'; */
 
 
 //#region ALERTAS
+// Antes: colores hardcodeados (#cce5ff/#fff3cd) que no invertian en modo
+// oscuro -quedaban con el mismo tono claro sobre fondo oscuro, feo y bajo
+// contraste. Ahora usan --accent/--warning -soft/-strong (theme/variables.scss),
+// los mismos tokens que ya se definieron en Fase 1 para esto: fondo tenue +
+// texto saturado, invirtiendo solos entre claro/oscuro sin logica extra aca.
 /* Estilo base común */
 .alerta {
   margin: 10px 16px;
   display: flex;
   align-items: center;
   gap: 10px;
-  border-radius: 8px;
-  padding: 8px 15px;
-  font-family: Arial, sans-serif;
-  font-size: 14px;
-  line-height: 1.2;
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 13.5px;
+  line-height: 1.4;
   margin-bottom: 15px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
-  border: 1px solid transparent;
 }
 
 .alerta-icon {
-  font-size: 18px;
-  line-height: 1;
+  font-size: 17px;
+  line-height: 1.4;
+  flex-shrink: 0;
 }
 
 .alerta-texto {
   flex: 1;
+  font-weight: 500;
 }
 
 /* Variante de advertencia */
 .alerta-warn {
-  background-color: #fff3cd;
-  color: #856404;
-  border-color: #ffeeba;
-}
-
-.alerta-warn .alerta-icon {
-  color: #d39e00;
+  background-color: var(--warning-soft);
+  color: var(--warning-strong);
 }
 
 /* Variante informativa */
 .alerta-info {
-  background-color: #cce5ff;
-  color: #004085;
-  border-color: #b8daff;
+  background-color: var(--accent-soft);
+  color: var(--accent-strong);
 }
 //#endregion
 
 /*#region NOTIFICACIONES*/
+// Antes: fondo hex fijo + texto rgb(31,31,31) fijo. Quedaba bien en la mayoría
+// de los casos, pero al no depender de ningún token, no había garantía de
+// contraste si el teléfono forzaba algún tipo de tema sobre el WebView. Ahora
+// sale de los mismos tokens success/warning/danger-strong que el resto de la
+// app (theme/variables.scss) y el texto siempre es blanco -los 4 "-strong"
+// son oscuros/saturados a propósito, blanco encima cumple contraste en los
+// dos modos sin tener que calcularlo por tipo de toast.
 .toast-container .ionic-toast {
   border-radius: 10px !important;
   padding: 12px 18px !important;
   font-size: 15px !important;
-  color: rgb(31, 31, 31) !important;
+  color: #ffffff !important;
   text-align: center !important;
   max-width: 90vw !important;
   margin: 8px auto !important;
@@ -96,15 +104,15 @@
 }
 
 .ionic-toast-success {
-  background: #2dd36f !important; 
+  background: var(--success-solid) !important;
 }
 .ionic-toast-error {
-  background: #eb445a !important; 
+  background: var(--danger-solid) !important;
 }
 .ionic-toast-warning {
-  background: #ffc409 !important; 
+  background: var(--warning-solid) !important;
 }
 .ionic-toast-info {
-  background: #3880ff !important; 
+  background: var(--accent-solid) !important;
 }
 /*#endregion */

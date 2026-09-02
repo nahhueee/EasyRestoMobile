@@ -4,49 +4,18 @@
   justify-content: center;
   color: var(--ion-color-primary);
   font-size: 10px;
-  margin-top: 10px;
-  margin-bottom: 5px;
+  margin-top: 15px;
   text-transform: uppercase;
 }
 
-.recuadro{
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 25px 16px;
-  height: 10px;
-  background-color: var(--ion-color-light);
-  margin-bottom: 10px;
-
-  p{
-    margin: 0%;
-  }
-
-  ion-icon{
-    font-size: 30px;
-    color: var(--ion-color-primary);
-  }
-}
-
-.recuadro.repetir{
-  background-color: #ffdc40;
-  color: #292929;
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  margin-bottom: 50px;
-
-  ion-icon{
-    font-size: 30px;
-    color: #292929;
-  }
-}
-
+// Fila de categorias: chips con scroll horizontal (hasta 8), en vez de la
+// grilla de cards grandes -el modal (.categorias abajo) sigue existiendo
+// para cuando hay mas de 8, no se saco nada, solo cambia el disparador.
 .categorias-principales {
   display: flex;
   flex-wrap: nowrap;
-  gap: 5px;
+  overflow-x: auto;
+  gap: 8px;
   padding: 10px 16px;
   width: 100%;
   margin-bottom: 5px;
@@ -60,7 +29,50 @@
   width: 100%;
 }
 
-.categoria-item {
+// Chip de la fila superior (categorias-principales)
+.categorias-principales .categoria-item {
+  flex-shrink: 0;
+  width: auto;
+  height: auto;
+  flex-direction: row;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 20px;
+  background-color: var(--ion-color-light);
+  box-shadow: none;
+  white-space: nowrap;
+
+  .icono{
+    font-size: 16px;
+  }
+
+  span{
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--ion-color-dark);
+  }
+}
+
+.categorias-principales .categoria-item.seleccionada {
+  background-color: var(--ion-color-primary);
+
+  span{
+    color: #ffffff;
+  }
+}
+
+.categorias-principales .ver-mas {
+  ion-icon{
+    font-size: 20px;
+    color: var(--ion-color-medium);
+  }
+  span{
+    color: var(--ion-color-medium);
+  }
+}
+
+// Card grande del modal (.categorias), sin cambios
+.categorias .categoria-item {
   width: 100%;
   height: 90px;
   background-color: var(--ion-color-light);
@@ -70,37 +82,22 @@
   align-items: center;
   justify-content: center;
   box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-  
+
   p{
     margin: 0%;
     margin-bottom: 6px;
     font-size: 25px;
   }
-}
 
-.categoria-item ion-icon {
-  font-size: 28px;
-  color: var(--ion-color-primary);
-  margin-bottom: 6px;
-}
-
-.categoria-item span {
-  font-size: 12px;
-  text-align: center;
-  color: var(--ion-color-medium);
-}
-
-.ver-mas ion-icon {
-  color: var(--ion-color-medium);
+  span{
+    font-size: 12px;
+    text-align: center;
+    color: var(--ion-color-medium);
+  }
 }
 /*#endregion */
 
 /*#region SELECCIONAR VARIEDADES*/
-.btnRepetir{
-    margin-right: 10px;
-    margin-bottom: 10px;
-}
-
 .alerta{
   margin-top: 20px;
 }
@@ -115,6 +112,7 @@
 }
 
 .producto-item {
+  position: relative;
   width: 100%;
   background-color: var(--ion-color-light);
   border-radius: 10px;
@@ -124,6 +122,29 @@
   justify-content: center;
   align-items: center;
   flex-direction: column;
+
+  .badge-cantidad{
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 5px;
+    border-radius: 10px;
+    background-color: var(--accent-solid);
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+    // Borde + sombra: sin esto el badge se mezclaba con fotos o avatares de
+    // color parecido al accent (ej: azules). El borde blanco lo recorta del
+    // fondo pase lo que pase atras, en los dos temas.
+    border: 2px solid #ffffff;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.35);
+  }
   
   img{
     height: 80px;
@@ -132,6 +153,22 @@
     object-position: center;
     border-top-left-radius: 10px;
     border-top-right-radius: 10px;
+  }
+
+  .avatar-inicial{
+    height: 80px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+
+    span{
+      font-size: 28px;
+      font-weight: 700;
+      color: #ffffff;
+    }
   }
 
   .data{
@@ -150,6 +187,7 @@
 
   span{
     font-size: 18px;
+    font-weight: 700;
     color: var(--ion-color-primary);
   }
 }
@@ -161,46 +199,148 @@ ion-input, ion-textarea{
 
 .input-busqueda{
   display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: var(--ion-color-light);
+  border-radius: 12px;
+  padding: 4px 14px;
+  margin: 0 16px 10px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+
+  ion-icon{
+    font-size: 18px;
+    color: var(--ion-color-medium);
+    flex-shrink: 0;
+  }
 
   ion-input{
-    padding-right: 0% !important;
-  }
-
-  ion-button{
-    background-color: var(--ion-color-light);
-    margin: 0%;
-    padding: 0px 6px;
-  }
-  ion-icon{
-    transform: scale(1.6);
+    flex: 1;
+    --background: transparent;
+    background-color: transparent !important;
+    padding: 0 !important;
+    --padding-start: 0;
+    --padding-end: 0;
+    // Sin validators, Angular marca el campo "valido" desde el primer
+    // render e Ionic pinta el foco con su verde de exito, no con el tema
+    // -no es un indicador real, se saca (ver .campo-selector, mismo caso).
+    --highlight-height: 0;
   }
 }
 /*#endregion */
 
+.subtitulo-paso{
+  margin: 0;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ion-color-medium);
+}
+
 /*#region CONFIRMAR PEDIDO*/
+// Compacto tipo "chip" en vez del segment default de Ionic (mucho padding,
+// indicator largo). El estado activo usa --background-checked/--color-checked/
+// --indicator-color -variables nativas de ion-segment-button- en vez de la
+// clase .opcion-activa de antes, para que el color siga siempre a
+// --ion-color-primary real (el tema del negocio), sin fijarlo a mano.
 ion-segment {
-  padding: 10px 16px;
+  padding: 8px 16px;
+  margin-bottom: 14px; // separa del bloque de Mesa/Cliente de abajo
   background-color: var(--ion-color-light);
+  border-radius: 12px;
 }
 
 ion-segment-button {
+  --background: transparent;
+  --background-checked: var(--ion-color-primary);
+  --color: var(--ion-color-medium);
+  --color-checked: #ffffff;
+  --indicator-color: transparent;
+  --border-radius: 10px;
+  --padding-top: 6px;
+  --padding-bottom: 6px;
+  min-height: 34px;
   transition: 0.2s ease;
-  padding: 10px 5px;
+
+  ion-icon{
+    font-size: 16px;
+  }
+  ion-label{
+    font-size: 11.5px;
+    font-weight: 700;
+    text-transform: none;
+    margin-top: 2px;
+  }
 }
 
-ion-segment-button.opcion-activa {
-  color: var(--ion-color-primary);
-  border-radius: 8px;
+// Etiqueta chica en mayuscula, reutilizada arriba de cada caja de campo
+// (Mesa/Cliente, Lista de Precio) y en el modal de Observaciones.
+.etiqueta-campo{
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--ion-color-medium);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
 }
 
-ion-select{
-  padding: 0px 16px;
+// Mesa/Cliente + Lista de Precio: misma caja (mismo look que .input-busqueda),
+// con la etiqueta como caption aparte en vez del label nativo de Ionic -antes
+// ion-select e ion-input/ion-item se veian distintos entre si.
+.fila-campo{
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+  padding: 0 16px;
+  margin-bottom: 10px;
 }
 
-.btnObservar{
-  min-height: 40px;
-  height: 40px;
-  margin: 10px 16px;
+.campo-selector{
+  flex: 1;
+  min-width: 0;
+  background-color: var(--ion-color-light);
+  border-radius: 12px;
+  padding: 6px 14px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+
+  ion-select, ion-input{
+    width: 100%;
+    max-width: 100%;
+    --background: transparent;
+    background-color: transparent !important;
+    padding: 0 !important;
+    --padding-start: 0;
+    --padding-end: 0;
+    font-size: 14px;
+    font-weight: 700;
+    // Intente atarlo a --ion-color-primary (--highlight-color-focused) y en
+    // la practica seguia en verde pese a que el resto de la app ya sigue el
+    // tema real -no pude verificar el motivo exacto sin inspeccionar el DOM
+    // en vivo. Se saca la linea directo: la caja ya tiene fondo/sombra
+    // propios, no hace falta el indicador de foco (el mock tampoco lo tiene).
+    --highlight-height: 0;
+  }
+}
+
+// Icono para observar el pedido: reemplaza el boton full-width + el banner
+// "Pedido Observado" de antes por un solo control (indicador + accion).
+.btn-nota-pedido{
+  flex-shrink: 0;
+  width: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--ion-color-light);
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+
+  ion-icon{
+    font-size: 20px;
+    color: var(--ion-color-medium);
+  }
+
+  &.con-obs{
+    background-color: var(--accent-solid);
+    ion-icon{ color: #ffffff; }
+  }
 }
 
 //Lista de registros
@@ -208,76 +348,181 @@ ion-select{
   width: 100%;
   display: flex;
   flex-direction: column;
-  padding: 10px;
-  border-radius: 10px;
+  padding: 12px;
+  border-radius: 12px;
   background-color: var(--ion-color-light);
-  margin-bottom: 10px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  margin-bottom: 9px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
 
   p{
     margin: 0%;
   }
 }
 
+.fila-top{
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
 .datos {
-  margin-bottom: 10px;
   line-height: 1.4;
+  min-width: 0;
 }
 
 .producto {
   font-size: 1.1rem;
 }
 
-.botones {
-  display: flex;
-  gap: 8px;
+.unitario{
+  font-size: 12px;
+  color: var(--ion-color-medium);
+  margin-top: 2px !important;
 }
 
-.botones ion-button {
-  flex: 1;
+.obs-item{
+  font-size: 11px;
+  color: var(--warning-strong);
+  font-weight: 600;
+  margin-top: 4px !important;
+}
+
+.total{
+  font-size: 15px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.fila-bottom{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+.stepper{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  ion-button{
+    --background: var(--surface);
+    --border-radius: 8px;
+    --box-shadow: none;
+    --padding-start: 8px;
+    --padding-end: 8px;
+    margin: 0;
+    height: 32px;
+    border: 1px solid var(--surface-border);
+    border-radius: 8px;
+  }
+
+  .cantidad{
+    min-width: 20px;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 700;
+  }
+}
+
+// Icono de nota por variedad: reemplaza el boton "Observacion". El boton
+// "Quitar" se saco -bajar el stepper a 0 ya remueve el item (Decrementar()).
+.btn-nota-item{
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--surface);
+  border: 1px solid var(--surface-border);
+  border-radius: 8px;
+
+  ion-icon{
+    font-size: 16px;
+    color: var(--ion-color-medium);
+  }
 }
 
 .observacion{
-  text-align: center;
-  p{
-    margin-bottom: 3px;
-  }
-  strong{
-    color: #dedede;
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --padding-top: 18px;
+
+  .obs-target{
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin: 0 0 18px;
   }
 
   ion-textarea{
-    margin-top: 15px;
-    text-align: left;
+    margin-top: 6px;
+    border-radius: 12px;
+    --placeholder-color: var(--ion-color-medium);
+    --highlight-height: 0;
   }
+
   ion-button{
-    margin-top: 15px;
-    padding: 0px 16px;
+    margin-top: 20px;
+    --border-radius: 12px;
+    height: 48px;
   }
 }
 
-//Totales
-.footer{
-  margin: 10px 16px;
-  p{
-    margin: 0%;
-  }
-}
-.totales{
-  display: flex;
-  justify-content: space-between;
-  padding: 10px;
-  border-radius: 10px;
-  margin-bottom: 5px;
-  background-color: var(--ion-color-light);
-}
 .advertencia{
   text-align: center;
   font-size: 13px;
   color: var(--ion-color-warning);
+  margin: 6px 0 0 !important;
 }
 
 //footer
+.footer-inferior{
+  position: sticky;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  z-index: 10;
+
+  ion-toolbar{
+    --background: transparent;
+    --border-width: 0;
+  }
+}
+
+.barra-inferior{
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+  padding: 8px 16px; // mismo margen horizontal que .productos/.categorias-principales
+}
+
+.btn-repetir{
+  flex-shrink: 0;
+  margin: 0;
+  --border-radius: 12px;
+}
+
+.resumen-carrito{
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 4px 0;
+  font-weight: 600;
+  border-radius: 12px;
+  background: var(--accent-solid);
+  color: #ffffff;
+
+  .cant{
+    opacity: 0.9;
+  }
+  .total{
+    font-size: 1.05rem;
+  }
+}
+
 .footer-guardar {
   position: sticky;
   bottom: 0;
@@ -285,23 +530,137 @@ ion-select{
   width: 100%;
   padding: 0;
   margin: 0;
-  background: none;
   z-index: 10;
 }
 
-.footer-guardar ion-button {
-  --border-radius: 0;
-  --padding-top: 5px;
-  --padding-bottom: 5px;
-  font-size: 1rem;
-  height: 45px;
-  min-height: 45px;
-  margin-bottom: 0%;
-}
-
+// Antes: bg transparente, boton pegado a los bordes sin radio. Ahora replica
+// el footer del mock -superficie propia + sombra hacia arriba, separandolo
+// de la lista, con cantidad/total arriba del boton Guardar.
 .footer-guardar ion-toolbar{
-  background: none;
+  --background: var(--ion-background-color);
+  background: var(--ion-background-color);
   border-width: 0px;
+  box-shadow: 0 -2px 10px rgba(0,0,0,0.08);
 }
 
+.resumen-guardar{
+  padding: 12px 16px calc(10px + env(safe-area-inset-bottom));
+}
+
+.fila-resumen{
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 10px;
+
+  .cant{
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--ion-color-medium);
+  }
+  .total{
+    font-size: 19px;
+    font-weight: 800;
+  }
+}
+
+.footer-guardar ion-button {
+  --border-radius: 12px;
+  font-size: 1rem;
+  height: 48px;
+  min-height: 48px;
+  margin: 0;
+}
+
+/*#endregion */
+
+/*#region GUARDADO*/
+// Reemplaza al alert nativo "Si, imprimir/No, cerrar" de antes -pantalla
+// propia con resumen y las dos acciones de impresion sin expulsar al tocar
+// la primera (ver ResumenTitulo()/GuardarPedido() en el .ts).
+.pantalla-guardado{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  // Mismo padding horizontal que .categorias-principales/.productos/.fila-campo (16px)
+  padding: 48px 16px 24px;
+
+  ion-button{
+    width: 100%;
+    --border-radius: 12px;
+    height: 48px;
+    margin-bottom: 10px;
+  }
+}
+
+.icono-exito{
+  width: 76px;
+  height: 76px;
+  border-radius: 38px;
+  background-color: var(--success-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+
+  ion-icon{
+    font-size: 36px;
+    color: var(--success-strong);
+  }
+}
+
+.titulo-guardado{
+  font-size: 19px;
+  font-weight: 800;
+  margin: 0 0 6px;
+}
+
+.subtitulo-guardado{
+  font-size: 13.5px;
+  color: var(--ion-color-medium);
+  margin: 0 0 26px;
+  text-align: center;
+}
+
+.tarjeta-resumen-guardado{
+  width: 100%;
+  background-color: var(--ion-color-light);
+  border-radius: 14px;
+  padding: 18px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  margin-bottom: 28px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+
+  .dato{
+    text-align: center;
+
+    .valor{
+      font-size: 20px;
+      font-weight: 800;
+      margin: 0;
+    }
+    .etiqueta{
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--ion-color-medium);
+      margin: 2px 0 0;
+    }
+  }
+
+  .divisor{
+    width: 1px;
+    align-self: stretch;
+    background-color: var(--surface-border);
+  }
+}
+
+.pantalla-guardado .btn-volver{
+  margin-top: 4px;
+  margin-bottom: 0;
+  --color: var(--ion-color-medium);
+  font-size: 15px;
+  font-weight: 700;
+}
 /*#endregion */

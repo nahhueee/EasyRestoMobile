@@ -1,2 +1,137 @@
 // For information on how to create your own theme, please see:
 // http://ionicframework.com/docs/theming/
+
+// ============================================================
+// Theming EasyRestoMobile (Fase 3, agosto 2026)
+// ------------------------------------------------------------
+// Modo claro/oscuro NO depende del sistema operativo del teléfono
+// (por eso en global.scss se usa dark.class.css, no dark.system.css):
+// lo controla ThemeService agregando/sacando la clase 'ion-palette-dark'
+// en <html>, según lo que el usuario eligió en Preferencias
+// (parametros_mobile.modoOscuro).
+//
+// El color de marca (tema) tampoco es fijo: ThemeService setea
+// data-tema="red|pink|blue|green|yellow|orange" en <html>, mismos 6
+// temas que ya existen en EasyRestoApp (ver GetPrimario() en
+// EasyRestoApp/src/app/services/parametros.service.ts). Shade/tint se
+// calcularon oscureciendo/aclarando el color base un 12%/10% (mismo
+// criterio que usa Ionic para sus propios colores default) y el
+// contraste se eligió por luminancia relativa de cada color.
+//
+// --success/--warning/--danger-soft/strong y --surface-* están
+// calcados 1:1 de tokens-genericos-light/dark en
+// EasyRestoApp/src/themes.scss (ya probados ahí, no son valores nuevos)
+// - son los tokens que reemplazan los hex fijos que tenía mesas.page.scss
+// y los toasts, y los que se usan en el rediseño de pantallas (Fase 5,
+// todavía no portado a código).
+// ============================================================
+
+:root {
+  // --- Color de marca por defecto (green, igual que el default de Desktop) ---
+  --ion-color-primary: #00c853;
+  --ion-color-primary-rgb: 0, 200, 83;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-contrast-rgb: 255, 255, 255;
+  --ion-color-primary-shade: #00b049;
+  --ion-color-primary-tint: #1ace64;
+
+  // --- Tokens genéricos: modo claro ---
+  --surface: #ffffff;
+  --surface-soft: #f7f8fb;
+  --surface-muted: #eef2f7;
+  --surface-border: rgba(15, 23, 42, 0.08);
+  --surface-border-strong: rgba(15, 23, 42, 0.16);
+  --text-muted: #6b7280;
+  --row-zebra: #f7f8fb;
+
+  --accent-soft: rgba(25, 118, 210, 0.12);
+  --accent-strong: #1f5fbf;
+  --warning-soft: #ffe4d6;
+  --warning-strong: #b45309;
+  --success-soft: #dff5e8;
+  --success-strong: #1d7a46;
+  --danger-soft: #fef2f2;
+  --danger-strong: #b91c1c;
+
+  // "Solid": para fondos sólidos con texto blanco encima (toasts, botones de
+  // estado) donde necesitamos que el color se vea siempre saturado y oscuro.
+  // A diferencia de -strong (pensado como TEXTO sobre -soft: en modo oscuro
+  // se vuelve CLARO, ver .ion-palette-dark más abajo), estos van con hex
+  // literal -si fueran var(--accent-strong) el custom property se re-resuelve
+  // en el punto de uso y en modo oscuro terminarían tomando el valor claro
+  // igual, quedando texto blanco sobre fondo claro. No se redefinen abajo.
+  --accent-solid: #1f5fbf;
+  --warning-solid: #b45309;
+  --success-solid: #1d7a46;
+  --danger-solid: #b91c1c;
+}
+
+// --- Los 6 temas de color (mismos que EasyRestoApp) ---
+:root[data-tema="red"] {
+  --ion-color-primary: #ff1744;
+  --ion-color-primary-rgb: 255, 23, 68;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-contrast-rgb: 255, 255, 255;
+  --ion-color-primary-shade: #e0143c;
+  --ion-color-primary-tint: #ff2e57;
+}
+:root[data-tema="pink"] {
+  --ion-color-primary: #f50057;
+  --ion-color-primary-rgb: 245, 0, 87;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-contrast-rgb: 255, 255, 255;
+  --ion-color-primary-shade: #d8004d;
+  --ion-color-primary-tint: #f61a68;
+}
+:root[data-tema="blue"] {
+  --ion-color-primary: #0091ea;
+  --ion-color-primary-rgb: 0, 145, 234;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-contrast-rgb: 255, 255, 255;
+  --ion-color-primary-shade: #0080ce;
+  --ion-color-primary-tint: #1a9cec;
+}
+:root[data-tema="green"] {
+  --ion-color-primary: #00c853;
+  --ion-color-primary-rgb: 0, 200, 83;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-contrast-rgb: 255, 255, 255;
+  --ion-color-primary-shade: #00b049;
+  --ion-color-primary-tint: #1ace64;
+}
+:root[data-tema="yellow"] {
+  --ion-color-primary: #ffd600;
+  --ion-color-primary-rgb: 255, 214, 0;
+  --ion-color-primary-contrast: #000000;
+  --ion-color-primary-contrast-rgb: 0, 0, 0;
+  --ion-color-primary-shade: #e0bc00;
+  --ion-color-primary-tint: #ffda1a;
+}
+:root[data-tema="orange"] {
+  --ion-color-primary: #ff9100;
+  --ion-color-primary-rgb: 255, 145, 0;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-contrast-rgb: 255, 255, 255;
+  --ion-color-primary-shade: #e08000;
+  --ion-color-primary-tint: #ff9c1a;
+}
+
+// --- Tokens genéricos: modo oscuro (clase controlada a mano, no por el SO) ---
+:root.ion-palette-dark {
+  --surface: #2f2f2f;
+  --surface-soft: #262626;
+  --surface-muted: #1f1f1f;
+  --surface-border: rgba(255, 255, 255, 0.08);
+  --surface-border-strong: rgba(255, 255, 255, 0.16);
+  --text-muted: rgba(255, 255, 255, 0.68);
+  --row-zebra: rgba(255, 255, 255, 0.035);
+
+  --accent-soft: rgba(255, 255, 255, 0.1);
+  --accent-strong: #9bc7ff;
+  --warning-soft: rgba(255, 180, 120, 0.16);
+  --warning-strong: #ffb366;
+  --success-soft: rgba(99, 255, 68, 0.14);
+  --success-strong: #87ff70;
+  --danger-soft: rgba(239, 68, 68, 0.14);
+  --danger-strong: #fca5a5;
+}

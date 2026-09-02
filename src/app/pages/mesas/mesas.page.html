@@ -23,14 +23,29 @@
     </ion-refresher-content>
   </ion-refresher>
 
+  <!-- Leyenda de estados -->
+  <div class="leyenda-estados">
+    <div class="leyenda-item">
+      <span class="punto disponible"></span>
+      <span>Disponible</span>
+    </div>
+    <div class="leyenda-item">
+      <span class="punto ocupada"></span>
+      <span>Ocupada</span>
+    </div>
+    <div class="leyenda-item">
+      <span class="punto pendiente"></span>
+      <span>Pago Pendiente</span>
+    </div>
+  </div>
+
   <!-- Lista de resultados -->
   @if (mesas.length == 0) {
-   <div class="alerta alerta-warn">
-        <span class="alerta-icon">⚠️</span>
-        <div class="alerta-texto">
-          No se encontraron mesas disponibles en este salón. Es posible que aún no tengas mesas asignadas.        
-        </div>
-    </div>
+    <app-estado-vacio
+      icono="restaurant-outline"
+      titulo="Sin mesas disponibles"
+      subtitulo="No se encontraron mesas en este salón. Es posible que aún no tengas mesas asignadas.">
+    </app-estado-vacio>
   }@else {
     <div class="grid">
       <div class="card ocupada" *ngFor="let mesa of mesas" [ngClass]="{'disponible':mesa.estado == 'Disponible', 'pendiente':mesa.estado == 'Pago Pendiente'}" (click)="NuevoPedido(mesa)">

@@ -11,6 +11,7 @@ import { Subscription } from 'rxjs';
 import { RecargaService } from 'src/app/services/recarga.service';
 import { UsuariosService } from 'src/app/services/usuarios.service';
 import { ParametrosService } from 'src/app/services/parametros.service';
+import { EstadoVacioComponent } from 'src/app/components/estado-vacio/estado-vacio.component';
 
 @Component({
   selector: 'app-mesas',
@@ -24,6 +25,7 @@ import { ParametrosService } from 'src/app/services/parametros.service';
     IonContent,
     IonToolbar, 
     IonHeader, 
+    EstadoVacioComponent
   ]
 })
 export class MesasPage implements OnInit {
