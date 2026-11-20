@@ -488,14 +488,15 @@ export class NuevoPedidoPage implements OnInit {
         this.tiposPedido = response.map((item: any) => {
           let icono = 'cube-outline'; // ícono por defecto
          
-          switch (item.nombre) {
-            case 'RESTAURANTE':
+          // Por id y no por nombre: el nombre del tipo 1 es editable en la base (RESTAURANTE / SALÓN)
+          switch (item.id) {
+            case 1:
               icono = 'restaurant-outline';
               break;
-            case 'RETIRA':
+            case 2:
               icono = 'bag-handle-outline';
               break;
-            case 'DELIVERY':
+            case 3:
               icono = 'rocket-outline';
               break;
           }
